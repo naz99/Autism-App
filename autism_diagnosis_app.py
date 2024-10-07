@@ -10,10 +10,10 @@ from fpdf import FPDF
 from dotenv import load_dotenv
 import os
 
-def main():
-    # Set page config at the very start of the main function
-    st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
+# Set page config at the very start of the script
+st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
 
+def main():
     # Load environment variables
     load_dotenv()
     EMAIL_USER = os.getenv("EMAIL_USER")
@@ -123,8 +123,6 @@ def main():
         return pdf_file_path
 
     # Main application function
-    st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
-
     # Sidebar navigation
     menu = ["Home", "Signup", "Login", "Contact Us"]
     if 'logged_in' in st.session_state and st.session_state['logged_in']:

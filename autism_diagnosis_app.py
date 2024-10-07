@@ -207,7 +207,7 @@ def main():
                            1 if social_behavioral_issues == "Yes" else 0,
                            1 if anxiety_disorder == "Yes" else 0,
                            1 if gender == "Male" else 0,
-                           1 if suffers_from_jaundice == "Yes" else 0
+                           1 if suffers_from_jaundice == "Yes" else 0,
                            1 if family_member_history_with_asd == "Yes" else 0]
 
             # Scale input data

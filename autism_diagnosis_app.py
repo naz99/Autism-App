@@ -3,13 +3,12 @@ import sqlite3
 import hashlib
 import time
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 import pickle
 from PIL import Image
 import smtplib
 from email.mime.text import MIMEText
-from fpdf import FPDF  # Import the fpdf library for PDF generation
-import base64  # Import base64 for downloading the PDF
+from fpdf import FPDF
+import base64
 
 # Constants
 DATABASE_NAME = 'naz.db'
@@ -90,7 +89,7 @@ def send_email(name, email, message):
         msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
         msg['Subject'] = 'Contact Us Form Submission'
         msg['From'] = email
-        msg['To'] = "nazruliskandar99.ni@gmail.com"  # Replace with your email to receive messages
+        msg['To'] = "your_email@gmail.com"  # Replace with your email to receive messages
 
         # Send the email
         server.sendmail(email, "nazruliskandar99.ni@gmail.com", msg.as_string())  # Replace with your email to receive messages
@@ -148,37 +147,28 @@ def get_pdf_download_link(pdf_filename):
 def main():
     st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
 
-    # Sidebar navigation
-    menu = ["Home", "Signup", "Login", "Autism Diagnosis", "Review Results", "Contact Us"]
-    selected = st.sidebar.radio("Navigation", menu)
-
+    # Initialize database connection
     conn = init_db_connection()
     if conn is None:
         st.stop()  # Stop execution if database connection failed
 
     create_usertable(conn)  # Ensure the table is created at the start
 
-    if selected == "Home":
-        st.title(":blue[Autism Spectrum Disorder]")
-        st.write("---")
-        with st.container():
-            col1, col2 = st.columns([3, 2])
-            with col1:
-                st.title("What is Autism Spectrum Disorder?")
-                st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
-            with col2:
-                img1 = Image.open("asd_child.jpg")
-                st.image(img1, width=300)
+    # First page for Signup/Login
+    st.title(":blue[Autism Spectrum Disorder]")
+    st.write("Welcome to the Autism Spectrum Disorder Diagnosis Application.")
+    st.write("Please login or create an account to continue.")
+    selected_action = st.radio("Choose an action:", ["Signup", "Login"])
 
-    elif selected == "Signup":
-        st.title(":iphone: :blue[Create New Account]")
+    if selected_action == "Signup":
+        st.subheader(":iphone: Create New Account")
         new_user = st.text_input("Username")
         new_password = st.text_input("Password", type='password')
         if st.button("Signup"):
             add_userdata(conn, new_user, make_hashes(new_password))
 
-    elif selected == "Login":
-        st.title(":calling: :blue[Login Section]")
+    elif selected_action == "Login":
+        st.subheader(":calling: Login Section")
         username = st.text_input("User Name")
         password = st.text_input("Password", type='password')
         if st.button("Login"):
@@ -194,7 +184,21 @@ def main():
             else:
                 st.warning("Incorrect Username/Password")
 
-    elif selected == "Autism Diagnosis":
+    # Navigation for other pages
+    menu = ["Home", "Autism Diagnosis", "Review Results", "Contact Us"]
+    selected_page = st.sidebar.radio("Navigation", menu)
+
+    if selected_page == "Home":
+        st.write("---")
+        col1, col2 = st.columns([3, 2])
+        with col1:
+            st.title("What is Autism Spectrum Disorder?")
+            st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
+        with col2:
+            img1 = Image.open("asd_child.jpg")
+            st.image(img1, width=300)
+
+    elif selected_page == "Autism Diagnosis":
         st.title('Autism Diagnosis')
         classifier, scaler = load_model_and_scaler()
         social_responsiveness = st.slider("Social Responsiveness", min_value=0, max_value=10)
@@ -213,27 +217,29 @@ def main():
 
         if submit_button:
             input_data = [
-                social_responsiveness, age, int(speech_delay == "Yes"), int(learning_disorder == "Yes"), 
-                int(genetic_disorders == "Yes"), int(depression == "Yes"), int(intellectual_disability == "Yes"), 
-                int(social_behavioral_issues == "Yes"), int(anxiety_disorder == "Yes"), int(gender == "Male"),
+                social_responsiveness, age,
+                int(speech_delay == "Yes"), int(learning_disorder == "Yes"),
+                int(genetic_disorders == "Yes"), int(depression == "Yes"),
+                int(intellectual_disability == "Yes"), int(social_behavioral_issues == "Yes"),
+                int(anxiety_disorder == "Yes"), int(gender == "Male"),
                 int(suffers_from_jaundice == "Yes"), int(family_member_history_with_asd == "Yes")
             ]
 
             scaled_data = scaler.transform([input_data])
             prediction = classifier.predict(scaled_data)
-            
+
             # Display the prediction result
             st.write("### Diagnosis Result")
             if prediction == 0:
                 st.write("The person is **not** diagnosed with Autism Spectrum Disorder.")
             else:
                 st.write("The person is diagnosed with **Autism Spectrum Disorder**.")
-            
+
             # Save the input data and prediction in session state
             st.session_state['input_data'] = input_data
             st.session_state['prediction'] = prediction
 
-    elif selected == "Review Results":
+    elif selected_page == "Review Results":
         st.title("Review Your Previous Diagnosis")
 
         if 'input_data' in st.session_state and 'prediction' in st.session_state:
@@ -254,14 +260,14 @@ def main():
             if st.button("Save Results as PDF"):
                 pdf_filename = generate_pdf(st.session_state['input_data'], st.session_state['prediction'])
                 st.success("PDF generated successfully!")
-                
+
                 # Provide download link for the PDF
                 pdf_download_link = get_pdf_download_link(pdf_filename)
                 st.markdown(pdf_download_link, unsafe_allow_html=True)
         else:
             st.write("No previous diagnosis results found. Please go to the Autism Diagnosis section to conduct a diagnosis.")
 
-    elif selected == "Contact Us":
+    elif selected_page == "Contact Us":
         st.title(":mailbox: :blue[Contact Us]")
         name = st.text_input("Name")
         email = st.text_input("Email")

@@ -81,7 +81,7 @@ def send_email(name, email, message):
         server.starttls()
 
         # Log in to your email account (use App Password)
-        server.login("nazruliskandar99.ni@gmail.com", "ompo rqui qgxb fzyl")  # Replace with your email and app password
+        server.login("nazruliskandar99.ni@gmail.com", "yompo rqui qgxb fzyl")  # Replace with your email and app password
 
         # Create the email content
         msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
@@ -101,7 +101,7 @@ def main():
     st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
 
     # Sidebar navigation
-    menu = ["Home", "Signup", "Login", "Autism Diagnosis", "Contact Us"]
+    menu = ["Login", "Signup", "Autism Diagnosis", "Contact Us"]
     selected = st.sidebar.radio("Navigation", menu)
 
     conn = init_db_connection()
@@ -110,28 +110,7 @@ def main():
 
     create_usertable(conn)  # Ensure the table is created at the start
 
-    if selected == "Home":
-        # Home section content
-        st.title(":blue[Autism Spectrum Disorder]")
-        st.write("---")
-        with st.container():
-            col1, col2 = st.columns([3, 2])
-            with col1:
-                st.title("What is Autism Spectrum Disorder?")
-                st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
-            with col2:
-                img1 = Image.open("asd_child.jpg")
-                st.image(img1, width=300)
-
-    elif selected == "Signup":
-        # Signup Section
-        st.title(":iphone: :blue[Create New Account]")
-        new_user = st.text_input("Username")
-        new_password = st.text_input("Password", type='password')
-        if st.button("Signup"):
-            add_userdata(conn, new_user, make_hashes(new_password))
-
-    elif selected == "Login":
+    if selected == "Login":
         # Login Section
         st.title(":calling: :blue[Login Section]")
         username = st.text_input("User Name")
@@ -145,16 +124,24 @@ def main():
                 prog.progress(per_comp + 1)
             if result:
                 st.success("Logged In as {}".format(username))
-                st.warning("Go to Home Menu!")
                 st.session_state['logged_in'] = True  # Set session state for logged in users
+                st.experimental_rerun()  # Rerun the app to show the Autism Diagnosis page
             else:
                 st.warning("Incorrect Username/Password")
+
+    elif selected == "Signup":
+        # Signup Section
+        st.title(":iphone: :blue[Create New Account]")
+        new_user = st.text_input("Username")
+        new_password = st.text_input("Password", type='password')
+        if st.button("Signup"):
+            add_userdata(conn, new_user, make_hashes(new_password))
 
     elif selected == "Autism Diagnosis":
         # Autism Diagnosis Section
         if 'logged_in' not in st.session_state or not st.session_state['logged_in']:
             st.warning("Please log in to access the Autism Diagnosis section.")
-            return
+            st.stop()  # Stop execution if not logged in
 
         st.title('Autism Diagnosis')
 

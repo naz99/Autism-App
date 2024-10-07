@@ -1,22 +1,16 @@
-import streamlit as st
+import os
+import pickle
 import sqlite3
 import hashlib
-import pandas as pd
-import pickle
-from PIL import Image
 import smtplib
 from email.mime.text import MIMEText
-from fpdf import FPDF
 from dotenv import load_dotenv
-import os
+import streamlit as st
+import pandas as pd
 
 def main():
     # Set page config at the very start of the main function
     st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
-    
-    # Initialize session state
-    if 'logged_in' not in st.session_state:
-        st.session_state['logged_in'] = False
 
     # Load environment variables
     load_dotenv()
@@ -32,6 +26,10 @@ def main():
     MODEL_FILE = "autism_random_forest.pkl"
     SCALER_FILE = 'scaler.pkl'
     DATASET_FILE = "asd_data_csv.csv"
+
+    # Initialize session state
+    if 'logged_in' not in st.session_state:
+        st.session_state['logged_in'] = False
 
     # Function to hash passwords
     def make_hashes(password):
@@ -106,152 +104,61 @@ def main():
             server.quit()
             st.success("Your message has been sent successfully!")
         except Exception as e:
-            st.error(f"An error occurred while sending the email: {e}")
+            st.error(f"Error sending email: {e}")
 
-    # Function to generate PDF report
-    def generate_pdf_result(result, details):
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", size=12)
-
-        pdf.cell(200, 10, txt="Autism Diagnosis Result", ln=True, align='C')
-        pdf.cell(200, 10, txt=f"Diagnosis: {result}", ln=True)
-        
-        pdf.cell(200, 10, txt="Details:", ln=True)
-        for detail in details:
-            pdf.cell(200, 10, txt=detail, ln=True)
-
-        pdf_file_path = "diagnosis_result.pdf"
-        pdf.output(pdf_file_path)
-
-        return pdf_file_path
-
-    # Main application function
     # Sidebar navigation
-    menu = ["Home", "Signup", "Login", "Contact Us"]
+    st.sidebar.title("Navigation")
     if st.session_state['logged_in']:
-        menu.append("Autism Diagnosis")
-        menu.append("Logout")  # Add logout option to the menu
+        st.sidebar.subheader("Logged in as: " + st.session_state['username'])
+        choice = st.sidebar.selectbox("Select an option", ["Home", "Autism Diagnosis", "Contact Us"])
+    else:
+        choice = st.sidebar.selectbox("Select an option", ["Home", "Login", "Register"])
 
-    selected = st.sidebar.radio("Navigation", menu)
-
-    conn = init_db_connection()
-    if conn is None:
-        st.stop()  # Stop execution if database connection failed
-
-    create_usertable(conn)  # Ensure the table is created at the start
-
-    if selected == "Home":
-        # Home section content
-        st.title(":blue[Autism Spectrum Disorder]")
-        st.write("---")
-        with st.container():
-            col1, col2 = st.columns([3, 2])
-            with col1:
-                st.title("What is Autism Spectrum Disorder?")
-                st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
-            with col2:
-                img1 = Image.open("asd_child.jpg")
-                st.image(img1, width=300)
-
-    elif selected == "Signup":
-        # Signup Section
-        st.title(":iphone: :blue[Create New Account]")
-        new_user = st.text_input("Username")
-        new_password = st.text_input("Password", type='password')
-        if st.button("Signup"):
-            add_userdata(conn, new_user, make_hashes(new_password))
-
-    elif selected == "Login":
-        # Login Section
-        st.title(":calling: :blue[Login Section]")
-        username = st.text_input("User Name")
+    if choice == "Home":
+        st.title("Welcome to Autism Spectrum Disorder App")
+        st.write("This app helps in autism diagnosis and provides information about autism.")
+        
+    elif choice == "Login":
+        st.subheader("Login")
+        username = st.text_input("Username")
         password = st.text_input("Password", type='password')
         if st.button("Login"):
-            hashed_pswd = make_hashes(password)
-            result = login_user(conn, username, hashed_pswd)
-            if result:
-                st.success("Logged In as {}".format(username))
-                st.session_state['logged_in'] = True  # Set session state for logged-in users
-                st.session_state['username'] = username  # Store the username
-                # No need to rerun the app here; the sidebar will automatically update
-            else:
-                st.warning("Incorrect Username/Password")
+            conn = init_db_connection()
+            if conn:
+                create_usertable(conn)
+                user = login_user(conn, username, make_hashes(password))
+                if user:
+                    st.session_state['logged_in'] = True
+                    st.session_state['username'] = username
+                    st.success("Login successful!")
+                    st.experimental_rerun()  # Refresh the app to show the updated menu
+                else:
+                    st.error("Invalid username or password")
+            conn.close()
 
-    elif selected == "Autism Diagnosis":
-        # Autism Diagnosis Section
-        st.title('Autism Diagnosis')
-
-        # Load model and scaler
-        classifier, scaler = load_model_and_scaler()
-
-        # Input form for prediction
-        social_responsiveness = st.slider("Social Responsiveness", min_value=0, max_value=10)
-        age = st.slider("Age", min_value=0, max_value=18)
-        speech_delay = st.radio("Speech Delay", ["No", "Yes"])
-        learning_disorder = st.radio("Learning Disorder", ["No", "Yes"])
-        genetic_disorders = st.radio("Genetic Disorders", ["No", "Yes"])
-        depression = st.radio("Depression", ["No", "Yes"])
-        intellectual_disability = st.radio("Intellectual Disability", ["No", "Yes"])
-        social_behavioral_issues = st.radio("Social/Behavioral Issues", ["No", "Yes"])
-        anxiety_disorder = st.radio("Anxiety Disorder", ["No", "Yes"])
-        gender = st.selectbox("Gender", ["Female", "Male"])
-        suffers_from_jaundice = st.radio("Suffers from Jaundice", ["No", "Yes"])
-        family_member_history_with_asd = st.radio("Family member history with ASD", ["No", "Yes"])
-        submit_button = st.button(label='Predict')
-
-        if submit_button:
-            # Convert input data to numerical values
-            input_data = [
-                social_responsiveness, age,
-                1 if speech_delay == "Yes" else 0,
-                1 if learning_disorder == "Yes" else 0,
-                1 if genetic_disorders == "Yes" else 0,
-                1 if depression == "Yes" else 0,
-                1 if intellectual_disability == "Yes" else 0,
-                1 if social_behavioral_issues == "Yes" else 0,
-                1 if anxiety_disorder == "Yes" else 0,
-                1 if gender == "Male" else 0,
-                1 if suffers_from_jaundice == "Yes" else 0,
-                1 if family_member_history_with_asd == "Yes" else 0
-            ]
-            input_data_scaled = scaler.transform([input_data])  # Scale the input data
-            prediction = classifier.predict(input_data_scaled)
-            diagnosis_result = "Positive" if prediction[0] == 1 else "Negative"
-
-            # Generate PDF report
-            pdf_file_path = generate_pdf_result(diagnosis_result, input_data)
-
-            # Display results
-            st.subheader("Diagnosis Result")
-            st.write(f"The diagnosis result is: **{diagnosis_result}**")
-
-            # Provide download link for the PDF report
-            with open(pdf_file_path, "rb") as pdf_file:
-                st.download_button("Download PDF Report", pdf_file, file_name=pdf_file_path)
-
-    elif selected == "Contact Us":
-        # Contact Us Section
-        st.title("Contact Us")
-        contact_name = st.text_input("Name")
-        contact_email = st.text_input("Email")
-        contact_message = st.text_area("Message")
-
+    elif choice == "Register":
+        st.subheader("Register")
+        new_username = st.text_input("Username")
+        new_password = st.text_input("Password", type='password')
+        if st.button("Register"):
+            conn = init_db_connection()
+            if conn:
+                create_usertable(conn)
+                add_userdata(conn, new_username, make_hashes(new_password))
+                conn.close()
+        
+    elif choice == "Autism Diagnosis":
+        st.subheader("Autism Diagnosis")
+        # Add your diagnosis logic here
+        st.write("This is where the autism diagnosis logic will go.")
+        
+    elif choice == "Contact Us":
+        st.subheader("Contact Us")
+        name = st.text_input("Your Name")
+        email = st.text_input("Your Email")
+        message = st.text_area("Your Message")
         if st.button("Send"):
-            if contact_name and contact_email and contact_message:
-                send_email(contact_name, contact_email, contact_message)
-            else:
-                st.warning("Please fill all fields!")
+            send_email(name, email, message)
 
-    elif selected == "Logout":
-        # Logout Section
-        if 'logged_in' in st.session_state and st.session_state['logged_in']:
-            st.session_state['logged_in'] = False  # Clear the session state on logout
-            st.session_state.pop('username', None)  # Remove the username from session state
-            st.success("You have been logged out.")
-            # No need to rerun the app here; the sidebar will automatically update
-
-    conn.close()  # Close the database connection at the end of the app
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

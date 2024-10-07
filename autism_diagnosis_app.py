@@ -122,13 +122,10 @@ def main():
 
         return pdf_file_path
 
-    # Ensure session state is initialized properly
-    if 'logged_in' not in st.session_state:
-        st.session_state['logged_in'] = False
-
+    # Main application function
     # Sidebar navigation
     menu = ["Home", "Signup", "Login", "Contact Us"]
-    if st.session_state['logged_in']:
+    if 'logged_in' in st.session_state and st.session_state['logged_in']:
         menu.append("Autism Diagnosis")
         menu.append("Logout")  # Add logout option to the menu
 
@@ -173,12 +170,15 @@ def main():
                 st.success("Logged In as {}".format(username))
                 st.session_state['logged_in'] = True  # Set session state for logged-in users
                 st.session_state['username'] = username  # Store the username
-                # Remove rerun for debugging
-                # st.experimental_rerun()
+                
+                # Add button to go to Autism Diagnosis
+                if st.button("Go to Autism Diagnosis"):
+                    st.session_state['go_to_diagnosis'] = True
+                    st.experimental_rerun()  # Refresh the app to show the Autism Diagnosis section
             else:
                 st.warning("Incorrect Username/Password")
 
-    elif selected == "Autism Diagnosis" and st.session_state['logged_in']:
+    elif selected == "Autism Diagnosis" and (st.session_state['logged_in'] or st.session_state.get('go_to_diagnosis', False)):
         # Autism Diagnosis Section
         st.title('Autism Diagnosis')
 
@@ -239,19 +239,19 @@ def main():
                 st.success("PDF report generated successfully!")
 
     elif selected == "Contact Us":
-        st.title(":envelope: Contact Us")
-        name = st.text_input("Name")
-        email = st.text_input("Email")
-        message = st.text_area("Message")
+        # Contact Us Section
+        st.title(":mailbox_with_mail: Contact Us")
+        name = st.text_input("Your Name")
+        email = st.text_input("Your Email")
+        message = st.text_area("Your Message")
         if st.button("Send"):
             send_email(name, email, message)
 
     elif selected == "Logout":
+        # Logout Section
         st.session_state['logged_in'] = False
-        del st.session_state['username']  # Optionally remove username from session
-        st.experimental_rerun()  # Refresh the app
+        st.session_state.pop('username', None)
+        st.experimental_rerun()  # Refresh the app after logout
 
-    conn.close()  # Close the database connection
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

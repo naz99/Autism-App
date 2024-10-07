@@ -195,10 +195,11 @@ def main():
         anxiety_disorder = st.radio("Anxiety Disorder", ["No", "Yes"])
         gender = st.selectbox("Gender", ["Female", "Male"])
         suffers_from_jaundice = st.radio("Suffers from Jaundice", ["No", "Yes"])
+        family_member_history_with_asd = st.radio("Family member history with ASD", ["No", "Yes"])
 
         if st.button("Diagnose"):
             # Prepare input data for prediction
-            input_data = [[social_responsiveness, age, 1 if speech_delay == "Yes" else 0,
+            input_data = [social_responsiveness, age, 1 if speech_delay == "Yes" else 0,
                            1 if learning_disorder == "Yes" else 0,
                            1 if genetic_disorders == "Yes" else 0,
                            1 if depression == "Yes" else 0,
@@ -206,7 +207,8 @@ def main():
                            1 if social_behavioral_issues == "Yes" else 0,
                            1 if anxiety_disorder == "Yes" else 0,
                            1 if gender == "Male" else 0,
-                           1 if suffers_from_jaundice == "Yes" else 0]]
+                           1 if suffers_from_jaundice == "Yes" else 0
+                           1 if family_member_history_with_asd == "Yes" else 0]
 
             # Scale input data
             input_data_scaled = scaler.transform(input_data)

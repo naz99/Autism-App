@@ -1,10 +1,10 @@
 import streamlit as st
 import sqlite3
 import hashlib
+import time
 import pandas as pd
 import pickle
-import base64
-from fpdf import FPDF  # Import the fpdf library for PDF generation
+from PIL import Image
 import smtplib
 from email.mime.text import MIMEText
 
@@ -76,102 +76,153 @@ def load_data():
 # Send email function
 def send_email(name, email, message):
     try:
+        # Set up the server
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        server.login("nazruliskandar99.ni@gmail.com", "ompo rqui qgxb fzyl")
+
+        # Log in to your email account (use App Password)
+        server.login("nazruliskandar99.ni@gmail.com", "ompo rqui qgxb fzyl")  # Replace with your email and app password
+
+        # Create the email content
         msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
         msg['Subject'] = 'Contact Us Form Submission'
         msg['From'] = email
-        msg['To'] = "nazruliskandar99.ni@gmail.com"
-        server.sendmail(email, "nazruliskandar99.ni@gmail.com", msg.as_string())
+        msg['To'] = "nazruliskandar99.ni@gmail.com"  # Replace with your email to receive messages
+
+        # Send the email
+        server.sendmail(email, "nazruliskandar99.ni@gmail.com", msg.as_string())  # Replace with your email to receive messages
         server.quit()
         st.success("Your message has been sent successfully!")
     except Exception as e:
         st.error(f"An error occurred while sending the email: {e}")
 
-# Function to generate PDF
-def generate_pdf(input_data, prediction_result):
-    pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.add_page()
-    pdf.set_font("Arial", "B", 16)
-    pdf.cell(200, 10, txt="Autism Diagnosis Result", ln=True, align='C')
-    pdf.ln(10)  # New line
-    pdf.set_font("Arial", "", 12)
-    pdf.cell(0, 10, "User's Input Data:", ln=True)
-    pdf.ln(5)
-    data_labels = [
-        "Social Responsiveness", "Age", "Speech Delay", "Learning Disorder", 
-        "Genetic Disorders", "Depression", "Intellectual Disability",
-        "Social/Behavioral Issues", "Anxiety Disorder", "Gender",
-        "Suffers from Jaundice", "Family Member History with ASD"
-    ]
-    for label, value in zip(data_labels, input_data):
-        pdf.cell(0, 10, f"{label}: {value}", ln=True)
-    pdf.ln(10)
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(0, 10, "Diagnosis Result:", ln=True)
-    pdf.set_font("Arial", "", 12)
-    diagnosis = "Not diagnosed with Autism Spectrum Disorder" if prediction_result == 0 else "Diagnosed with Autism Spectrum Disorder"
-    pdf.cell(0, 10, f"The person is {diagnosis}.", ln=True)
-    pdf_filename = "autism_diagnosis_result.pdf"
-    pdf.output(pdf_filename)
-    return pdf_filename
-
-# Function to convert PDF to downloadable link
-def get_pdf_download_link(pdf_filename):
-    with open(pdf_filename, "rb") as pdf_file:
-        base64_pdf = base64.b64encode(pdf_file.read()).decode('utf-8')
-    href = f'<a href="data:application/octet-stream;base64,{base64_pdf}" download="{pdf_filename}">Download PDF Result</a>'
-    return href
-
 # Main application function
 def main():
     st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
+
+    # Sidebar navigation
+    menu = ["Home", "Signup", "Login", "Autism Diagnosis", "Contact Us"]
+    selected = st.sidebar.radio("Navigation", menu)
+
     conn = init_db_connection()
     if conn is None:
         st.stop()  # Stop execution if database connection failed
+
     create_usertable(conn)  # Ensure the table is created at the start
 
-    # Navigation
-    page = st.sidebar.radio("Select a page", ["Login", "Signup"])
-
-    if page == "Login":
-        # Login Section
+    if selected == "Home":
+        # Home section content
         st.title(":blue[Autism Spectrum Disorder]")
-        st.write("Welcome to the Autism Spectrum Disorder Diagnosis Application.")
-        st.write("Please login to continue.")
-        
-        # Login Form
+        st.write("---")
+        with st.container():
+            col1, col2 = st.columns([3, 2])
+            with col1:
+                st.title("What is Autism Spectrum Disorder?")
+                st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
+            with col2:
+                img1 = Image.open("asd_child.jpg")
+                st.image(img1, width=300)
+
+    elif selected == "Signup":
+        # Signup Section
+        st.title(":iphone: :blue[Create New Account]")
+        new_user = st.text_input("Username")
+        new_password = st.text_input("Password", type='password')
+        if st.button("Signup"):
+            add_userdata(conn, new_user, make_hashes(new_password))
+
+    elif selected == "Login":
+        # Login Section
+        st.title(":calling: :blue[Login Section]")
         username = st.text_input("User Name")
         password = st.text_input("Password", type='password')
         if st.button("Login"):
             hashed_pswd = make_hashes(password)
             result = login_user(conn, username, hashed_pswd)
+            prog = st.progress(0)
+            for per_comp in range(100):
+                time.sleep(0.05)
+                prog.progress(per_comp + 1)
             if result:
-                st.session_state['logged_in'] = True
-                st.session_state['username'] = username
-                st.success(f"Logged In as {username}")
-                st.experimental_rerun()  # Refresh the app to show the main content
+                st.success("Logged In as {}".format(username))
+                st.warning("Go to Home Menu!")
+                st.session_state['logged_in'] = True  # Set session state for logged in users
             else:
                 st.warning("Incorrect Username/Password")
 
-        # Forgot Password Section
-        st.write("### Forgot Password?")
-        st.write("If you have forgotten your password, please contact support.")
+    elif selected == "Autism Diagnosis":
+        # Autism Diagnosis Section
+        if 'logged_in' not in st.session_state or not st.session_state['logged_in']:
+            st.warning("Please log in to access the Autism Diagnosis section.")
+            return
 
-        if 'logged_in' in st.session_state and st.session_state['logged_in']:
-            st.write("Please login or sign up to access the Autism Diagnosis and other sections.")
+        st.title('Autism Diagnosis')
 
-    elif page == "Signup":
-        # Signup Section
-        st.title(":blue[Signup Page]")
-        st.write("Create a new account below:")
-        new_user = st.text_input("New Username")
-        new_password = st.text_input("New Password", type='password')
-        if st.button("Signup"):
-            add_userdata(conn, new_user, make_hashes(new_password))
+        # Load model and scaler
+        classifier, scaler = load_model_and_scaler()
 
-# Run the application
-if __name__ == '__main__':
+        # Input form for prediction
+        social_responsiveness = st.slider("Social Responsiveness", min_value=0, max_value=10)
+        age = st.slider("Age", min_value=0, max_value=18)
+        speech_delay = st.radio("Speech Delay", ["No", "Yes"])
+        learning_disorder = st.radio("Learning Disorder", ["No", "Yes"])
+        genetic_disorders = st.radio("Genetic Disorders", ["No", "Yes"])
+        depression = st.radio("Depression", ["No", "Yes"])
+        intellectual_disability = st.radio("Intellectual Disability", ["No", "Yes"])
+        social_behavioral_issues = st.radio("Social/Behavioral Issues", ["No", "Yes"])
+        anxiety_disorder = st.radio("Anxiety Disorder", ["No", "Yes"])
+        gender = st.selectbox("Gender", ["Female", "Male"])
+        suffers_from_jaundice = st.radio("Suffers from Jaundice", ["No", "Yes"])
+        family_member_history_with_asd = st.radio("Family member history with ASD", ["No", "Yes"])
+        submit_button = st.button(label='Predict')
+
+        if submit_button:
+            # Convert input data to numerical values
+            input_data = [
+                social_responsiveness, age,
+                1 if speech_delay == "Yes" else 0,
+                1 if learning_disorder == "Yes" else 0,
+                1 if genetic_disorders == "Yes" else 0,
+                1 if depression == "Yes" else 0,
+                1 if intellectual_disability == "Yes" else 0,
+                1 if social_behavioral_issues == "Yes" else 0,
+                1 if anxiety_disorder == "Yes" else 0,
+                1 if gender == "Female" else 0,
+                1 if suffers_from_jaundice == "Yes" else 0,
+                1 if family_member_history_with_asd == "Yes" else 0
+            ]
+
+            # Standardize the input data
+            input_data_standardized = scaler.transform([input_data])
+
+            # Make prediction
+            prediction = classifier.predict(input_data_standardized)
+
+            # Interpretation of prediction
+            if prediction[0] == 0:
+                st.write('The person is not diagnosed with Autism Spectrum Disorder.')
+            else:
+                st.write('The person is diagnosed with Autism Spectrum Disorder.')
+
+    elif selected == "Contact Us":
+        # Contact Us Section
+        st.title(":mailbox: :blue[Get In Touch With Us!]")
+        name = st.text_input("Your Name")
+        email = st.text_input("Your Email")  # Removed type="email"
+        message = st.text_area("Your Message")
+
+        if st.button("Send"):
+            if name and email and message:
+                # Simple email validation
+                if "@" not in email or "." not in email:
+                    st.error("Please enter a valid email address.")
+                else:
+                    send_email(name, email, message)
+            else:
+                st.error("Please fill out all fields.")
+
+    conn.close()  # Close the database connection
+
+# Run the main function
+if __name__ == "__main__":
     main()

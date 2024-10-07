@@ -174,9 +174,7 @@ def main():
                 st.success("Logged In as {}".format(username))
                 st.session_state['logged_in'] = True  # Set session state for logged-in users
                 st.session_state['username'] = username  # Store the username
-                st.write("Click below to proceed to Autism Diagnosis")
-                if st.button("Go to Autism Diagnosis"):
-                    st.experimental_rerun()  # Refresh the app to show the Autism Diagnosis section
+                st.experimental_rerun()  # Refresh the app to show the Autism Diagnosis section
             else:
                 st.warning("Incorrect Username/Password")
 
@@ -217,10 +215,7 @@ def main():
                 1 if suffers_from_jaundice == "Yes" else 0,
                 1 if family_member_history_with_asd == "Yes" else 0
             ]
-
-            # Scale the input data
-            input_data_scaled = scaler.transform([input_data])
-            # Make prediction
+            input_data_scaled = scaler.transform([input_data])  # Scale the input data
             prediction = classifier.predict(input_data_scaled)
             diagnosis_result = "Positive" if prediction[0] == 1 else "Negative"
 
@@ -252,12 +247,9 @@ def main():
         # Logout Section
         if 'logged_in' in st.session_state and st.session_state['logged_in']:
             st.session_state['logged_in'] = False  # Clear the session state on logout
+            st.session_state.pop('username', None)  # Remove the username from session state
             st.success("You have been logged out.")
-        else:
-            st.warning("You are not logged in.")
-
-        # Refresh the app to show the updated menu
-        st.experimental_rerun()  # Refresh the app to show the updated menu
+            # No need to rerun the app here; the sidebar will automatically update
 
     conn.close()  # Close the database connection at the end of the app
 

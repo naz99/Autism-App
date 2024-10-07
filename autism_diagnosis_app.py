@@ -3,11 +3,11 @@ import sqlite3
 import hashlib
 import time
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 import pickle
 from PIL import Image
 import smtplib
 from email.mime.text import MIMEText
+from fpdf import FPDF
 
 # Constants
 DATABASE_NAME = 'naz.db'
@@ -77,25 +77,36 @@ def load_data():
 # Send email function
 def send_email(name, email, message):
     try:
-        # Set up the server
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-
-        # Log in to your email account (use App Password)
-        server.login("nazruliskandar99.ni@gmail.com", "ompo rqui qgxb fzyl")  # Replace with your email and app password
-
-        # Create the email content
+        server.login("nazruliskandar99ni@gmail.com", "ompo rqui qgxb fzyl")  # Replace with your email and app password
         msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
         msg['Subject'] = 'Contact Us Form Submission'
         msg['From'] = email
-        msg['To'] = "nazruliskandar99.ni@gmail.com"  # Replace with your email to receive messages
-
-        # Send the email
-        server.sendmail(email, "nazruliskandar99.ni@gmail.com", msg.as_string())  # Replace with your email to receive messages
+        msg['To'] = "nazruliskandar99ni@gmail.com"  # Replace with your email to receive messages
+        server.sendmail(email, "nazruliskandar99ni@gmail.com", msg.as_string())  # Replace with your email to receive messages
         server.quit()
         st.success("Your message has been sent successfully!")
     except Exception as e:
         st.error(f"An error occurred while sending the email: {e}")
+
+# Function to generate PDF report
+def generate_pdf_result(result, details):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
+    pdf.cell(200, 10, txt="Autism Diagnosis Result", ln=True, align='C')
+    pdf.cell(200, 10, txt=f"Diagnosis: {result}", ln=True)
+    
+    pdf.cell(200, 10, txt="Details:", ln=True)
+    for detail in details:
+        pdf.cell(200, 10, txt=detail, ln=True)
+
+    pdf_file_path = "diagnosis_result.pdf"
+    pdf.output(pdf_file_path)
+
+    return pdf_file_path
 
 # Main application function
 def main():
@@ -198,9 +209,39 @@ def main():
 
             # Interpretation of prediction
             if prediction[0] == 0:
-                st.write('The person is not diagnosed with Autism Spectrum Disorder.')
+                result_text = 'The person is not diagnosed with Autism Spectrum Disorder.'
             else:
-                st.write('The person is diagnosed with Autism Spectrum Disorder.')
+                result_text = 'The person is diagnosed with Autism Spectrum Disorder.'
+
+            # Store the result for later review
+            st.session_state['diagnosis_result'] = result_text
+            st.session_state['diagnosis_details'] = [
+                f"Social Responsiveness: {social_responsiveness}",
+                f"Age: {age}",
+                f"Speech Delay: {speech_delay}",
+                f"Learning Disorder: {learning_disorder}",
+                f"Genetic Disorders: {genetic_disorders}",
+                f"Depression: {depression}",
+                f"Intellectual Disability: {intellectual_disability}",
+                f"Social/Behavioral Issues: {social_behavioral_issues}",
+                f"Anxiety Disorder: {anxiety_disorder}",
+                f"Gender: {gender}",
+                f"Suffers from Jaundice: {suffers_from_jaundice}",
+                f"Family member history with ASD: {family_member_history_with_asd}",
+            ]
+
+            st.write(result_text)
+
+            # Generate and download PDF
+            pdf_file_path = generate_pdf_result(result_text, st.session_state['diagnosis_details'])
+            with open(pdf_file_path, "rb") as f:
+                st.download_button("Download Diagnosis Result as PDF", f, file_name=pdf_file_path)
+
+            # Review Section
+            st.subheader("Review Your Diagnosis Result")
+            st.write(st.session_state['diagnosis_result'])
+            for detail in st.session_state['diagnosis_details']:
+                st.write(detail)
 
     elif selected == "Contact Us":
         # Contact Us Section

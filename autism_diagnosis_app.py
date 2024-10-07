@@ -1,18 +1,19 @@
 import streamlit as st
 import sqlite3
 import hashlib
-import time
 import pandas as pd
 import pickle
 from PIL import Image
 import smtplib
 from email.mime.text import MIMEText
 from fpdf import FPDF
-import os
 from dotenv import load_dotenv
+import os
 
 # Load environment variables
 load_dotenv()
+EMAIL_USER = os.getenv("EMAIL_USER")
+EMAIL_PASS = os.getenv("EMAIL_PASS")
 
 # Constants
 DATABASE_NAME = 'naz.db'
@@ -84,12 +85,12 @@ def send_email(name, email, message):
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        server.login(os.getenv("EMAIL_ADDRESS"), os.getenv("EMAIL_APP_PASSWORD"))  # Use environment variables
+        server.login(EMAIL_USER, EMAIL_PASS)  # Use environment variables for credentials
         msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
         msg['Subject'] = 'Contact Us Form Submission'
-        msg['From'] = email
-        msg['To'] = os.getenv("nazruliskandar99.ni@gmail.com")  # Replace with your email to receive messages
-        server.sendmail(email, os.getenv("nazruliskandar99.ni@gmail.com"), msg.as_string())  # Replace with your email to receive messages
+        msg['From'] = EMAIL_USER  # Sender's email
+        msg['To'] = nazruliskandar99.ni@gmail.com  # Recipient's email
+        server.sendmail(EMAIL_USER, email, msg.as_string())
         server.quit()
         st.success("Your message has been sent successfully!")
     except Exception as e:
@@ -222,31 +223,41 @@ def main():
 
             # Store the result for later review
             st.session_state['diagnosis_result'] = result_text
-            st.session_state['diagnosis_details'] = input_data
+            st.session_state['diagnosis_details'] = [
+                f"Social Responsiveness: {social_responsiveness}",
+                f"Age: {age}",
+                f"Speech Delay: {speech_delay}",
+                f"Learning Disorder: {learning_disorder}",
+                f"Genetic Disorders: {genetic_disorders}",
+                f"Depression: {depression}",
+                f"Intellectual Disability: {intellectual_disability}",
+                f"Social/Behavioral Issues: {social_behavioral_issues}",
+                f"Anxiety Disorder: {anxiety_disorder}",
+                f"Gender: {gender}",
+                f"Suffers from Jaundice: {suffers_from_jaundice}",
+                f"Family Member History with ASD: {family_member_history_with_asd}"
+            ]
 
-            # Generate PDF report
-            pdf_file_path = generate_pdf_result(result_text, input_data)
-            st.success("Diagnosis Result: " + result_text)
-            st.download_button("Download Diagnosis Report", pdf_file_path, "diagnosis_result.pdf")
+            st.success(result_text)
+
+            # Generate PDF report button
+            if st.button("Generate PDF Report"):
+                pdf_file_path = generate_pdf_result(result_text, st.session_state['diagnosis_details'])
+                st.success(f"PDF report generated successfully: [Download PDF](/{pdf_file_path})")
 
     elif selected == "Contact Us":
-        # Contact Us section
-        st.title("Contact Us")
+        st.title(":envelope_with_arrow: Contact Us")
         name = st.text_input("Your Name")
         email = st.text_input("Your Email")
         message = st.text_area("Your Message")
         if st.button("Send"):
-            if name and email and message:
-                send_email(name, email, message)
-            else:
-                st.warning("Please fill in all fields.")
+            send_email(name, email, message)
 
     elif selected == "Logout":
-        # Logout functionality
-        st.session_state['logged_in'] = False  # Clear logged-in state
+        # Logout Section
+        st.session_state['logged_in'] = False
         st.session_state.pop('username', None)  # Remove username from session state
-        st.success("You have logged out successfully!")
-        st.experimental_rerun()  # Refresh the app
+        st.success("You have been logged out.")
 
     conn.close()
 

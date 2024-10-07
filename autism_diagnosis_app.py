@@ -79,12 +79,12 @@ def send_email(name, email, message):
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        server.login("nazruliskandar99ni@gmail.com", "ompo rqui qgxb fzyl")  # Replace with your email and app password
+        server.login("nazruliskandar99.ni@gmail.com", "ompo rqui qgxb fzyl")  # Replace with your email and app password
         msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
         msg['Subject'] = 'Contact Us Form Submission'
         msg['From'] = email
-        msg['To'] = "nazruliskandar99ni@gmail.com"  # Replace with your email to receive messages
-        server.sendmail(email, "nazruliskandar99ni@gmail.com", msg.as_string())  # Replace with your email to receive messages
+        msg['To'] = "nazruliskandar99.ni@gmail.com"  # Replace with your email to receive messages
+        server.sendmail(email, "nazruliskandar99.ni@gmail.com", msg.as_string())  # Replace with your email to receive messages
         server.quit()
         st.success("Your message has been sent successfully!")
     except Exception as e:
@@ -116,6 +116,7 @@ def main():
     menu = ["Home", "Signup", "Login", "Contact Us"]
     if 'logged_in' in st.session_state and st.session_state['logged_in']:
         menu.append("Autism Diagnosis")
+        menu.append("Logout")  # Add logout option to the menu
 
     selected = st.sidebar.radio("Navigation", menu)
 
@@ -259,6 +260,12 @@ def main():
                     send_email(name, email, message)
             else:
                 st.error("Please fill out all fields.")
+
+    elif selected == "Logout":
+        # Logout Section
+        st.session_state['logged_in'] = False  # Update the session state
+        st.success("You have successfully logged out.")
+        st.experimental_rerun()  # Refresh the app to show the updated navigation
 
     conn.close()  # Close the database connection
 

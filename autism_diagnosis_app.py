@@ -165,14 +165,17 @@ def main():
         st.session_state['logged_in'] = False
         st.session_state['username'] = ""
 
-    if selected_action == "Signup":
+    # Login/Signup Section
+    action = st.radio("Choose an action:", ("Login", "Signup"))
+
+    if action == "Signup":
         st.subheader(":iphone: Create New Account")
         new_user = st.text_input("Username")
         new_password = st.text_input("Password", type='password')
         if st.button("Signup"):
             add_userdata(conn, new_user, make_hashes(new_password))
 
-    elif selected_action == "Login":
+    elif action == "Login":
         st.subheader(":calling: Login Section")
         username = st.text_input("User Name")
         password = st.text_input("Password", type='password')
@@ -189,6 +192,10 @@ def main():
                 st.success("Logged In as {}".format(username))
             else:
                 st.warning("Incorrect Username/Password")
+
+    # Forgot Password Section
+    st.write("## Forgot Password?")
+    st.write("If you have forgotten your password, please contact support.")
 
     # Navigation for other pages
     if st.session_state['logged_in']:

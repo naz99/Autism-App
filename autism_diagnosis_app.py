@@ -10,6 +10,9 @@ from fpdf import FPDF
 from dotenv import load_dotenv
 import os
 
+def main():
+    # Set page config at the very start of the main function
+    st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
 # Load environment variables
 load_dotenv()
 EMAIL_USER = os.getenv("EMAIL_USER")

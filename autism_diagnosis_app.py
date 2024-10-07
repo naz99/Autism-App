@@ -83,7 +83,7 @@ def send_email(name, email, message):
         msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
         msg['Subject'] = 'Contact Us Form Submission'
         msg['From'] = email
-        msg['To'] = "nazruliskandar99.ni@gmail.com"  # Replace with your email to receive messages
+        msg['To'] = "ynazruliskandar99.ni@gmail.com"  # Replace with your email to receive messages
         server.sendmail(email, "nazruliskandar99.ni@gmail.com", msg.as_string())  # Replace with your email to receive messages
         server.quit()
         st.success("Your message has been sent successfully!")
@@ -158,6 +158,7 @@ def main():
             if result:
                 st.success("Logged In as {}".format(username))
                 st.session_state['logged_in'] = True  # Set session state for logged-in users
+                st.session_state['username'] = username  # Store the username
                 st.write("Click below to proceed to Autism Diagnosis")
                 if st.button("Go to Autism Diagnosis"):
                     st.experimental_rerun()  # Refresh the app to show the Autism Diagnosis section
@@ -264,6 +265,7 @@ def main():
     elif selected == "Logout":
         # Logout Section
         st.session_state['logged_in'] = False  # Update the session state
+        st.session_state.pop('username', None)  # Remove username from session state
         st.success("You have successfully logged out.")
         st.experimental_rerun()  # Refresh the app to show the updated navigation
 

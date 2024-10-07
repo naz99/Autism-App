@@ -101,10 +101,11 @@ def send_email(name, email, message):
 def main():
     st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
 
-    # Sidebar navigation
+    # Initialize session state variables
     if 'logged_in' not in st.session_state:
         st.session_state['logged_in'] = False
 
+    # Sidebar navigation
     menu = ["Home", "Signup", "Login", "Contact Us"]
     if st.session_state['logged_in']:
         menu.append("Autism Diagnosis")  # Add Autism Diagnosis only if logged in
@@ -148,29 +149,12 @@ def main():
             if result:
                 st.success("Logged In as {}".format(username))
                 st.session_state['logged_in'] = True  # Set session state for logged-in users
-                st.experimental_rerun()  # Refresh to show the Autism Diagnosis section
+                st.experimental_rerun()  # Rerun the app to show the Autism Diagnosis section
             else:
                 st.warning("Incorrect Username/Password")
 
-    elif selected == "Contact Us":
-        # Contact Us Section
-        st.title(":mailbox: :blue[Get In Touch With Us!]") 
-        name = st.text_input("Your Name")
-        email = st.text_input("Your Email")  # Removed type="email"
-        message = st.text_area("Your Message")
-
-        if st.button("Send"):
-            if name and email and message:
-                # Simple email validation
-                if "@" not in email or "." not in email:
-                    st.error("Please enter a valid email address.")
-                else:
-                    send_email(name, email, message)
-            else:
-                st.error("Please fill out all fields.")
-
-    # Autism Diagnosis Section
-    if selected == "Autism Diagnosis" and st.session_state['logged_in']:
+    elif selected == "Autism Diagnosis":
+        # Autism Diagnosis Section
         st.title('Autism Diagnosis')
 
         # Load model and scaler
@@ -218,6 +202,23 @@ def main():
                 st.write('The person is not diagnosed with Autism Spectrum Disorder.')
             else:
                 st.write('The person is diagnosed with Autism Spectrum Disorder.')
+
+    elif selected == "Contact Us":
+        # Contact Us Section
+        st.title(":mailbox: :blue[Get In Touch With Us!]") 
+        name = st.text_input("Your Name")
+        email = st.text_input("Your Email")  # Removed type="email"
+        message = st.text_area("Your Message")
+
+        if st.button("Send"):
+            if name and email and message:
+                # Simple email validation
+                if "@" not in email or "." not in email:
+                    st.error("Please enter a valid email address.")
+                else:
+                    send_email(name, email, message)
+            else:
+                st.error("Please fill out all fields.")
 
     conn.close()  # Close the database connection
 

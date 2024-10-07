@@ -82,7 +82,7 @@ def send_email(name, email, message):
         server.starttls()
 
         # Log in to your email account (use App Password)
-        server.login("nazruliskandar99.ni@gmail.com", "@Nazrul1999")  # Replace with your email and app password
+        server.login("nazruliskandar99.ni@gmail.com", "ompo rqui qgxb fzyl")  # Replace with your email and app password
 
         # Create the email content
         msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")

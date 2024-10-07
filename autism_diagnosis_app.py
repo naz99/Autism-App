@@ -170,15 +170,10 @@ def main():
                 st.success("Logged In as {}".format(username))
                 st.session_state['logged_in'] = True  # Set session state for logged-in users
                 st.session_state['username'] = username  # Store the username
-                
-                # Add button to go to Autism Diagnosis
-                if st.button("Go to Autism Diagnosis"):
-                    st.session_state['go_to_diagnosis'] = True
-                    st.experimental_rerun()  # Refresh the app to show the Autism Diagnosis section
             else:
                 st.warning("Incorrect Username/Password")
 
-    elif selected == "Autism Diagnosis" and (st.session_state['logged_in'] or st.session_state.get('go_to_diagnosis', False)):
+    elif selected == "Autism Diagnosis" and (st.session_state.get('logged_in', False)):
         # Autism Diagnosis Section
         st.title('Autism Diagnosis')
 
@@ -215,37 +210,46 @@ def main():
             # Make prediction
             prediction = classifier.predict(scaler.transform([input_data]))
             diagnosis = ["Autism" if pred == 1 else "No Autism" for pred in prediction]
-            result = diagnosis[0]
-
-            # Display result
-            st.success(f"The diagnosis is: {result}")
+            if diagnosis[0] == "Autism":
+                st.success("The model predicts: **Autism**")
+            else:
+                st.success("The model predicts: **No Autism**")
 
             # Generate PDF report
-            pdf_file_path = generate_pdf_result(result, input_data)
-            st.success("PDF report generated!")
-            st.download_button("Download PDF Report", pdf_file_path, "diagnosis_result.pdf")
+            details = [
+                f"Social Responsiveness: {social_responsiveness}",
+                f"Age: {age}",
+                f"Speech Delay: {speech_delay}",
+                f"Learning Disorder: {learning_disorder}",
+                f"Genetic Disorders: {genetic_disorders}",
+                f"Depression: {depression}",
+                f"Intellectual Disability: {intellectual_disability}",
+                f"Social/Behavioral Issues: {social_behavioral_issues}",
+                f"Anxiety Disorder: {anxiety_disorder}",
+                f"Gender: {gender}",
+                f"Suffers from Jaundice: {suffers_from_jaundice}",
+                f"Family member history with ASD: {family_member_history_with_asd}"
+            ]
+            pdf_file_path = generate_pdf_result(diagnosis[0], details)
+            with open(pdf_file_path, "rb") as pdf_file:
+                st.download_button("Download PDF Report", pdf_file, "diagnosis_result.pdf")
 
     elif selected == "Contact Us":
         # Contact Us Section
         st.title("Contact Us")
-        name = st.text_input("Name")
-        email = st.text_input("Email")
-        message = st.text_area("Message")
+        name = st.text_input("Your Name")
+        email = st.text_input("Your Email")
+        message = st.text_area("Your Message")
         if st.button("Send"):
-            if name and email and message:
-                send_email(name, email, message)
-            else:
-                st.error("Please fill in all fields.")
+            send_email(name, email, message)
 
     elif selected == "Logout":
-        st.session_state['logged_in'] = False
-        st.session_state.pop('username', None)  # Remove username from session state
-        st.success("You have successfully logged out.")
-        # Redirect to login page or home
-        st.session_state.pop('go_to_diagnosis', None)  # Clear the go_to_diagnosis state if it exists
+        # Logout logic
+        st.session_state['logged_in'] = False  # Set logged_in to False
+        st.session_state.pop('username', None)  # Clear the username
         st.experimental_rerun()  # Refresh the app after logout
 
-    conn.close()  # Close the database connection when done
+    conn.close()  # Close database connection
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

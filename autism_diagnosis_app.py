@@ -8,6 +8,8 @@ import pickle
 from PIL import Image
 import smtplib
 from email.mime.text import MIMEText
+from fpdf import FPDF  # Import the fpdf library for PDF generation
+import base64  # Import base64 for downloading the PDF
 
 # Constants
 DATABASE_NAME = 'naz.db'
@@ -97,6 +99,51 @@ def send_email(name, email, message):
     except Exception as e:
         st.error(f"An error occurred while sending the email: {e}")
 
+# Function to generate PDF
+def generate_pdf(input_data, prediction_result):
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    pdf.set_font("Arial", "B", 16)
+
+    # Title and content
+    pdf.cell(200, 10, txt="Autism Diagnosis Result", ln=True, align='C')
+    pdf.ln(10)  # New line
+
+    # Add input data to PDF
+    pdf.set_font("Arial", "", 12)
+    pdf.cell(0, 10, "User's Input Data:", ln=True)
+    pdf.ln(5)
+    data_labels = [
+        "Social Responsiveness", "Age", "Speech Delay", "Learning Disorder", 
+        "Genetic Disorders", "Depression", "Intellectual Disability",
+        "Social/Behavioral Issues", "Anxiety Disorder", "Gender",
+        "Suffers from Jaundice", "Family Member History with ASD"
+    ]
+    for label, value in zip(data_labels, input_data):
+        pdf.cell(0, 10, f"{label}: {value}", ln=True)
+
+    # Add the prediction result
+    pdf.ln(10)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Diagnosis Result:", ln=True)
+    pdf.set_font("Arial", "", 12)
+    diagnosis = "Not diagnosed with Autism Spectrum Disorder" if prediction_result == 0 else "Diagnosed with Autism Spectrum Disorder"
+    pdf.cell(0, 10, f"The person is {diagnosis}.", ln=True)
+
+    # Save PDF to a file
+    pdf_filename = "autism_diagnosis_result.pdf"
+    pdf.output(pdf_filename)
+
+    return pdf_filename
+
+# Function to convert PDF to downloadable link
+def get_pdf_download_link(pdf_filename):
+    with open(pdf_filename, "rb") as pdf_file:
+        base64_pdf = base64.b64encode(pdf_file.read()).decode('utf-8')
+    href = f'<a href="data:application/octet-stream;base64,{base64_pdf}" download="{pdf_filename}">Download PDF Result</a>'
+    return href
+
 # Main application function
 def main():
     st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
@@ -112,7 +159,6 @@ def main():
     create_usertable(conn)  # Ensure the table is created at the start
 
     if selected == "Home":
-        # Home section content
         st.title(":blue[Autism Spectrum Disorder]")
         st.write("---")
         with st.container():
@@ -125,7 +171,6 @@ def main():
                 st.image(img1, width=300)
 
     elif selected == "Signup":
-        # Signup Section
         st.title(":iphone: :blue[Create New Account]")
         new_user = st.text_input("Username")
         new_password = st.text_input("Password", type='password')
@@ -133,7 +178,6 @@ def main():
             add_userdata(conn, new_user, make_hashes(new_password))
 
     elif selected == "Login":
-        # Login Section
         st.title(":calling: :blue[Login Section]")
         username = st.text_input("User Name")
         password = st.text_input("Password", type='password')
@@ -151,13 +195,8 @@ def main():
                 st.warning("Incorrect Username/Password")
 
     elif selected == "Autism Diagnosis":
-        # Autism Diagnosis Section
         st.title('Autism Diagnosis')
-
-        # Load model and scaler
         classifier, scaler = load_model_and_scaler()
-
-        # Input form for prediction
         social_responsiveness = st.slider("Social Responsiveness", min_value=0, max_value=10)
         age = st.slider("Age", min_value=0, max_value=18)
         speech_delay = st.radio("Speech Delay", ["No", "Yes"])
@@ -173,42 +212,30 @@ def main():
         submit_button = st.button(label='Predict')
 
         if submit_button:
-            # Convert input data to numerical values
             input_data = [
-                social_responsiveness, age,
-                1 if speech_delay == "Yes" else 0,
-                1 if learning_disorder == "Yes" else 0,
-                1 if genetic_disorders == "Yes" else 0,
-                1 if depression == "Yes" else 0,
-                1 if intellectual_disability == "Yes" else 0,
-                1 if social_behavioral_issues == "Yes" else 0,
-                1 if anxiety_disorder == "Yes" else 0,
-                1 if gender == "Female" else 0,
-                1 if suffers_from_jaundice == "Yes" else 0,
-                1 if family_member_history_with_asd == "Yes" else 0
+                social_responsiveness, age, int(speech_delay == "Yes"), int(learning_disorder == "Yes"), 
+                int(genetic_disorders == "Yes"), int(depression == "Yes"), int(intellectual_disability == "Yes"), 
+                int(social_behavioral_issues == "Yes"), int(anxiety_disorder == "Yes"), int(gender == "Male"),
+                int(suffers_from_jaundice == "Yes"), int(family_member_history_with_asd == "Yes")
             ]
 
-            # Standardize the input data
-            input_data_standardized = scaler.transform([input_data])
-
-            # Make prediction
-            prediction = classifier.predict(input_data_standardized)
-
-            # Store results in session state for review
-            st.session_state['input_data'] = input_data
-            st.session_state['prediction'] = prediction[0]
-
-            # Interpretation of prediction
-            if prediction[0] == 0:
-                st.write('The person is not diagnosed with Autism Spectrum Disorder.')
+            scaled_data = scaler.transform([input_data])
+            prediction = classifier.predict(scaled_data)
+            
+            # Display the prediction result
+            st.write("### Diagnosis Result")
+            if prediction == 0:
+                st.write("The person is **not** diagnosed with Autism Spectrum Disorder.")
             else:
-                st.write('The person is diagnosed with Autism Spectrum Disorder.')
+                st.write("The person is diagnosed with **Autism Spectrum Disorder**.")
+            
+            # Save the input data and prediction in session state
+            st.session_state['input_data'] = input_data
+            st.session_state['prediction'] = prediction
 
     elif selected == "Review Results":
-        # Review Results Section
         st.title("Review Your Previous Diagnosis")
 
-        # Check if data exists in session state
         if 'input_data' in st.session_state and 'prediction' in st.session_state:
             st.write("### Your Input Data")
             st.write(pd.DataFrame([st.session_state['input_data']], columns=[
@@ -222,28 +249,26 @@ def main():
                 st.write("The person is **not** diagnosed with Autism Spectrum Disorder.")
             else:
                 st.write("The person is diagnosed with **Autism Spectrum Disorder**.")
+
+            # Generate and download PDF
+            if st.button("Save Results as PDF"):
+                pdf_filename = generate_pdf(st.session_state['input_data'], st.session_state['prediction'])
+                st.success("PDF generated successfully!")
+                
+                # Provide download link for the PDF
+                pdf_download_link = get_pdf_download_link(pdf_filename)
+                st.markdown(pdf_download_link, unsafe_allow_html=True)
         else:
             st.write("No previous diagnosis results found. Please go to the Autism Diagnosis section to conduct a diagnosis.")
 
     elif selected == "Contact Us":
-        # Contact Us Section
-        st.title(":mailbox: :blue[Get In Touch With Us!]")
-        name = st.text_input("Your Name")
-        email = st.text_input("Your Email")  # Removed type="email"
-        message = st.text_area("Your Message")
-
+        st.title(":mailbox: :blue[Contact Us]")
+        name = st.text_input("Name")
+        email = st.text_input("Email")
+        message = st.text_area("Message")
         if st.button("Send"):
-            if name and email and message:
-                # Simple email validation
-                if "@" not in email or "." not in email:
-                    st.error("Please enter a valid email address.")
-                else:
-                    send_email(name, email, message)
-            else:
-                st.error("Please fill out all fields.")
+            send_email(name, email, message)
 
-    conn.close()  # Close the database connection
-
-# Run the main function
-if __name__ == "__main__":
+# Run the application
+if __name__ == '__main__':
     main()

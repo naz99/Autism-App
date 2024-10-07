@@ -238,10 +238,12 @@ def main():
                 st.error("Please fill in all fields.")
 
     elif selected == "Logout":
-    st.session_state.pop('logged_in', None)  # Remove logged_in from session state
-    st.session_state.pop('username', None)  # Remove username from session state
-    st.session_state.pop('go_to_diagnosis', None)  # Clear the go_to_diagnosis state if it exists
-    st.success("You have successfully logged out.")
+        st.session_state['logged_in'] = False
+        st.session_state.pop('username', None)  # Remove username from session state
+        st.success("You have successfully logged out.")
+        # Redirect to login page or home
+        st.session_state.pop('go_to_diagnosis', None)  # Clear the go_to_diagnosis state if it exists
+        st.experimental_rerun()  # Refresh the app after logout
 
     conn.close()  # Close the database connection when done
 

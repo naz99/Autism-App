@@ -15,6 +15,10 @@ load_dotenv()
 EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASS = os.getenv("EMAIL_PASS")
 
+# Check if environment variables are loaded
+if EMAIL_USER is None or EMAIL_PASS is None:
+    st.error("Error loading email credentials. Please check your .env file.")
+
 # Constants
 DATABASE_NAME = 'naz.db'
 MODEL_FILE = "autism_random_forest.pkl"
@@ -89,8 +93,8 @@ def send_email(name, email, message):
         msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
         msg['Subject'] = 'Contact Us Form Submission'
         msg['From'] = EMAIL_USER  # Sender's email
-        msg['To'] = nazruliskandar99.ni@gmail.com  # Recipient's email
-        server.sendmail(EMAIL_USER, email, msg.as_string())
+        msg['To'] = EMAIL_USER  # Change this to the recipient's email address as a string
+        server.sendmail(EMAIL_USER, EMAIL_USER, msg.as_string())
         server.quit()
         st.success("Your message has been sent successfully!")
     except Exception as e:
@@ -204,49 +208,26 @@ def main():
                 1 if intellectual_disability == "Yes" else 0,
                 1 if social_behavioral_issues == "Yes" else 0,
                 1 if anxiety_disorder == "Yes" else 0,
-                1 if gender == "Female" else 0,
+                1 if gender == "Male" else 0,
                 1 if suffers_from_jaundice == "Yes" else 0,
                 1 if family_member_history_with_asd == "Yes" else 0
             ]
 
-            # Standardize the input data
-            input_data_standardized = scaler.transform([input_data])
-
+            # Scale the input data
+            input_data_scaled = scaler.transform([input_data])
             # Make prediction
-            prediction = classifier.predict(input_data_standardized)
+            prediction = classifier.predict(input_data_scaled)
+            diagnosis_result = "Positive" if prediction[0] == 1 else "Negative"
+            st.success(f"Diagnosis Result: {diagnosis_result}")
 
-            # Interpretation of prediction
-            if prediction[0] == 0:
-                result_text = 'The person is not diagnosed with Autism Spectrum Disorder.'
-            else:
-                result_text = 'The person is diagnosed with Autism Spectrum Disorder.'
-
-            # Store the result for later review
-            st.session_state['diagnosis_result'] = result_text
-            st.session_state['diagnosis_details'] = [
-                f"Social Responsiveness: {social_responsiveness}",
-                f"Age: {age}",
-                f"Speech Delay: {speech_delay}",
-                f"Learning Disorder: {learning_disorder}",
-                f"Genetic Disorders: {genetic_disorders}",
-                f"Depression: {depression}",
-                f"Intellectual Disability: {intellectual_disability}",
-                f"Social/Behavioral Issues: {social_behavioral_issues}",
-                f"Anxiety Disorder: {anxiety_disorder}",
-                f"Gender: {gender}",
-                f"Suffers from Jaundice: {suffers_from_jaundice}",
-                f"Family Member History with ASD: {family_member_history_with_asd}"
-            ]
-
-            st.success(result_text)
-
-            # Generate PDF report button
-            if st.button("Generate PDF Report"):
-                pdf_file_path = generate_pdf_result(result_text, st.session_state['diagnosis_details'])
-                st.success(f"PDF report generated successfully: [Download PDF](/{pdf_file_path})")
+            # Generate PDF report
+            pdf_file_path = generate_pdf_result(diagnosis_result, input_data)
+            with open(pdf_file_path, "rb") as pdf_file:
+                st.download_button("Download PDF Report", pdf_file, "diagnosis_result.pdf")
 
     elif selected == "Contact Us":
-        st.title(":envelope_with_arrow: Contact Us")
+        # Contact Us Section
+        st.title(":mailbox: Contact Us")
         name = st.text_input("Your Name")
         email = st.text_input("Your Email")
         message = st.text_area("Your Message")
@@ -254,11 +235,11 @@ def main():
             send_email(name, email, message)
 
     elif selected == "Logout":
-        # Logout Section
-        st.session_state['logged_in'] = False
-        st.session_state.pop('username', None)  # Remove username from session state
+        st.session_state['logged_in'] = False  # Clear the session state
         st.success("You have been logged out.")
+        st.experimental_rerun()  # Refresh to update the menu
 
+    # Close database connection
     conn.close()
 
 if __name__ == "__main__":

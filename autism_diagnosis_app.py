@@ -180,16 +180,17 @@ def main():
     elif selected == "Contact Us":
         # Contact Us Section
         st.title(":mailbox: :blue[Get In Touch With Us!]")
-        contact_form = """
-        <form action="https://formsubmit.co/YOUREMAIL@EMAIL.COM" method="POST">
-             <input type="hidden" name="_captcha" value="false">
-             <input type="text" name="name" placeholder="Your name" required>
-             <input type="email" name="email" placeholder="Your email" required>
-             <textarea name="message" placeholder="Your message here"></textarea>
-             <button type="submit">Send</button>
-        </form>
-        """
-        st.markdown(contact_form, unsafe_allow_html=True)
+        name = st.text_input("Your Name")
+        email = st.text_input("Your Email", type="email")
+        message = st.text_area("Your Message")
+
+if st.button("Send"):
+    if name and email and message:
+        # Here you would typically handle the form submission, e.g., sending an email
+        st.success("Your message has been sent successfully!")
+    else:
+        st.error("Please fill out all fields.")
+
 
         # Load local CSS file for styling
         def local_css(file_name):

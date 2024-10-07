@@ -208,15 +208,14 @@ def main():
                            1 if intellectual_disability == "Yes" else 0,
                            1 if social_behavioral_issues == "Yes" else 0,
                            1 if anxiety_disorder == "Yes" else 0,
-                           1 if gender == "Male" else 0,
+                           1 if gender == "Female" else 0,
                            1 if suffers_from_jaundice == "Yes" else 0,
                            1 if family_member_history_with_asd == "Yes" else 0]
 
-            # Scale input data
-            input_data_scaled = scaler.transform([input_data])  # Note the additional brackets here
-            diagnosis = classifier.predict(input_data_scaled)
-
-            if diagnosis[0] == 1:
+            # Make prediction
+            prediction = classifier.predict(scaler.transform([input_data]))
+            diagnosis = ["Autism" if pred == 1 else "No Autism" for pred in prediction]
+            if diagnosis[0] == "Autism":
                 st.success("The model predicts: **Autism**")
             else:
                 st.success("The model predicts: **No Autism**")
@@ -251,6 +250,8 @@ def main():
         # Logout Section
         st.session_state['logged_in'] = False
         st.session_state.pop('username', None)
+        st.session_state.pop('go_to_diagnosis', None, None)  # Clear the go_to_diagnosis state if it exists
+        st.success("You have been logged out.")
         st.experimental_rerun()  # Refresh the app after logout
 
 if __name__ == '__main__':

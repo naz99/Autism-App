@@ -173,9 +173,6 @@ def main():
                 st.session_state['logged_in'] = True  # Set session state for logged-in users
                 st.session_state['username'] = username  # Store the username
                 st.write("Click below to proceed to Autism Diagnosis")
-                if st.button("Go to Autism Diagnosis"):
-                    st.session_state['autism_diagnosis'] = True
-                    st.experimental_rerun()  # Refresh the app to show the Autism Diagnosis section
             else:
                 st.warning("Incorrect Username/Password")
 

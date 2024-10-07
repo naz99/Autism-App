@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score
 import pickle
 
 # Load the dataset
-file_path = r"C:\Users\nazrul iskandar\OneDrive\Desktop\SEMESTER 6\semester 6 naz\projek juta2\autism machine learning baru\asd_data_csv.csv"
+file_path = "asd_data_csv.csv"
 asd_data_csv = pd.read_csv(file_path)
 
 # Separate input features (X) and output label (Y)

@@ -82,7 +82,7 @@ def send_email(name, email, message):
         server.starttls()
 
         # Log in to your email account (use App Password)
-        server.login("nazruliskandar99.ni@gmail.com", "@Nazrul1999")  # Replace with your email and app password
+        server.login("YOUR_EMAIL@gmail.com", "YOUR_APP_PASSWORD")  # Replace with your email and app password
 
         # Create the email content
         msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
@@ -91,7 +91,7 @@ def send_email(name, email, message):
         msg['To'] = "YOUR_EMAIL@gmail.com"  # Replace with your email to receive messages
 
         # Send the email
-        server.sendmail(email, "nazruliskandar99.ni@gmail.com", msg.as_string())  # Replace with your email to receive messages
+        server.sendmail(email, "YOUR_EMAIL@gmail.com", msg.as_string())  # Replace with your email to receive messages
         server.quit()
         st.success("Your message has been sent successfully!")
     except Exception as e:
@@ -204,22 +204,21 @@ def main():
         # Contact Us Section
         st.title(":mailbox: :blue[Get In Touch With Us!]")
         name = st.text_input("Your Name")
-        email = st.text_input("Your Email", type="email")
+        email = st.text_input("Your Email")  # Removed type="email"
         message = st.text_area("Your Message")
 
         if st.button("Send"):
             if name and email and message:
-                send_email(name, email, message)
+                # Simple email validation
+                if "@" not in email or "." not in email:
+                    st.error("Please enter a valid email address.")
+                else:
+                    send_email(name, email, message)
             else:
                 st.error("Please fill out all fields.")
 
-        # Load local CSS file for styling
-        def local_css(file_name):
-            with open(file_name) as f:
-                st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-        local_css("style.css")  # Ensure 'style.css' is present in your project directory
+    conn.close()  # Close the database connection
 
 # Run the main function
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

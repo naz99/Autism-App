@@ -91,7 +91,7 @@ def send_email(name, email, message):
         msg['To'] = "nazruliskandar99.ni@gmail.com"  # Replace with your email to receive messages
 
         # Send the email
-        server.sendmail(email, "YOUR_EMAIL@gmail.com", msg.as_string())  # Replace with your email to receive messages
+        server.sendmail(email, "nazruliskandar99.ni@gmail.com", msg.as_string())  # Replace with your email to receive messages
         server.quit()
         st.success("Your message has been sent successfully!")
     except Exception as e:

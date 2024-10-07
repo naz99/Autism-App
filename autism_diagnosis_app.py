@@ -119,8 +119,6 @@ def main():
                 img1 = Image.open("asd_child.jpg")
                 st.image(img1, width=300)
 
-        # Additional home content...
-
     elif selected == "Signup":
         # Signup Section
         st.title(":iphone: :blue[Create New Account]")
@@ -200,22 +198,18 @@ def main():
     elif selected == "Contact Us":
         # Contact Us Section
         st.title(":mailbox: :blue[Get In Touch With Us!]")
+        
         name = st.text_input("Your Name")
-        email = st.text_input("Your Email", type="email")
+        email = st.text_input("Your Email")  # Removed type="email"
         message = st.text_area("Your Message")
+        
         if st.button("Send"):
             if name and email and message:
                 send_email(name, email, message)
             else:
                 st.error("Please fill out all fields.")
 
-        # Load local CSS file for styling
-        def local_css(file_name):
-            with open(file_name) as f:
-                st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    conn.close()
 
-        local_css("style.css")  # Ensure 'style.css' is present in your project directory
-
-# Run the main function
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -100,7 +100,7 @@ def send_email(name, email, message):
 def main():
     st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
 
-    # Sidebar navigation without "Autism Diagnosis"
+    # Sidebar navigation
     menu = ["Home", "Signup", "Login", "Contact Us"]
     selected = st.sidebar.radio("Navigation", menu)
 
@@ -110,8 +110,8 @@ def main():
 
     create_usertable(conn)  # Ensure the table is created at the start
 
+    # Home section
     if selected == "Home":
-        # Home section content
         st.title(":blue[Autism Spectrum Disorder]")
         st.write("---")
         with st.container():
@@ -146,7 +146,7 @@ def main():
             if result:
                 st.success("Logged In as {}".format(username))
                 st.session_state['logged_in'] = True  # Set session state for logged-in users
-                # Show a button to access Autism Diagnosis after login
+                st.session_state['autism_diagnosis'] = False  # Reset autism diagnosis access
                 if st.button("Go to Autism Diagnosis"):
                     st.session_state['autism_diagnosis'] = True  # Set session state to access the tool
                     st.experimental_rerun()  # Refresh to show the Autism Diagnosis section
@@ -172,7 +172,7 @@ def main():
 
     # Autism Diagnosis Section
     if 'logged_in' in st.session_state and st.session_state['logged_in']:
-        if 'autism_diagnosis' in st.session_state and st.session_state['autism_diagnosis']:
+        if st.session_state.get('autism_diagnosis', False):  # Check if autism diagnosis access is allowed
             st.title('Autism Diagnosis')
 
             # Load model and scaler

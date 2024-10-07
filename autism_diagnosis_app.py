@@ -102,7 +102,7 @@ def main():
     st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
 
     # Sidebar navigation
-    menu = ["Home", "Signup", "Login", "Autism Diagnosis", "Contact Us"]
+    menu = ["Home", "Signup", "Login", "Autism Diagnosis", "Review Results", "Contact Us"]
     selected = st.sidebar.radio("Navigation", menu)
 
     conn = init_db_connection()
@@ -194,11 +194,36 @@ def main():
             # Make prediction
             prediction = classifier.predict(input_data_standardized)
 
+            # Store results in session state for review
+            st.session_state['input_data'] = input_data
+            st.session_state['prediction'] = prediction[0]
+
             # Interpretation of prediction
             if prediction[0] == 0:
                 st.write('The person is not diagnosed with Autism Spectrum Disorder.')
             else:
                 st.write('The person is diagnosed with Autism Spectrum Disorder.')
+
+    elif selected == "Review Results":
+        # Review Results Section
+        st.title("Review Your Previous Diagnosis")
+
+        # Check if data exists in session state
+        if 'input_data' in st.session_state and 'prediction' in st.session_state:
+            st.write("### Your Input Data")
+            st.write(pd.DataFrame([st.session_state['input_data']], columns=[
+                "Social Responsiveness", "Age", "Speech Delay", "Learning Disorder", 
+                "Genetic Disorders", "Depression", "Intellectual Disability",
+                "Social/Behavioral Issues", "Anxiety Disorder", "Gender",
+                "Suffers from Jaundice", "Family Member History with ASD"]))
+
+            st.write("### Diagnosis Result")
+            if st.session_state['prediction'] == 0:
+                st.write("The person is **not** diagnosed with Autism Spectrum Disorder.")
+            else:
+                st.write("The person is diagnosed with **Autism Spectrum Disorder**.")
+        else:
+            st.write("No previous diagnosis results found. Please go to the Autism Diagnosis section to conduct a diagnosis.")
 
     elif selected == "Contact Us":
         # Contact Us Section

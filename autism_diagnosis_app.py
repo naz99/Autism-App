@@ -122,14 +122,12 @@ def main():
 
         return pdf_file_path
 
-    # Main application function
-    # Sidebar navigation
-    menu = ["Home", "Signup", "Login", "Contact Us"]
-    
     # Ensure session state is initialized properly
     if 'logged_in' not in st.session_state:
         st.session_state['logged_in'] = False
 
+    # Sidebar navigation
+    menu = ["Home", "Signup", "Login", "Contact Us"]
     if st.session_state['logged_in']:
         menu.append("Autism Diagnosis")
         menu.append("Logout")  # Add logout option to the menu
@@ -175,8 +173,8 @@ def main():
                 st.success("Logged In as {}".format(username))
                 st.session_state['logged_in'] = True  # Set session state for logged-in users
                 st.session_state['username'] = username  # Store the username
-                # Commented out for debugging
-                # st.experimental_rerun()  # Refresh to show the new section
+                # Remove rerun for debugging
+                # st.experimental_rerun()
             else:
                 st.warning("Incorrect Username/Password")
 
@@ -215,40 +213,45 @@ def main():
                            1 if family_member_history_with_asd == "Yes" else 0]
 
             # Scale input data
-            input_data_scaled = scaler.transform([input_data])  # Wrap input_data in a list
+            input_data_scaled = scaler.transform([input_data])  # Note the additional brackets here
             diagnosis = classifier.predict(input_data_scaled)
 
-            # Display diagnosis result
             if diagnosis[0] == 1:
-                result = "Autism"
+                st.success("The model predicts: **Autism**")
             else:
-                result = "No Autism"
+                st.success("The model predicts: **No Autism**")
 
-            st.success(f"Diagnosis Result: {result}")
-
-            # Optionally generate and download PDF report
-            pdf_file_path = generate_pdf_result(result, input_data)
-            with open(pdf_file_path, "rb") as pdf_file:
-                st.download_button("Download PDF Report", pdf_file, file_name="diagnosis_result.pdf")
+            # Generate PDF report
+            if st.button("Generate PDF Report"):
+                details = [f"Social Responsiveness: {social_responsiveness}",
+                           f"Age: {age}",
+                           f"Speech Delay: {speech_delay}",
+                           f"Learning Disorder: {learning_disorder}",
+                           f"Genetic Disorders: {genetic_disorders}",
+                           f"Depression: {depression}",
+                           f"Intellectual Disability: {intellectual_disability}",
+                           f"Social/Behavioral Issues: {social_behavioral_issues}",
+                           f"Anxiety Disorder: {anxiety_disorder}",
+                           f"Gender: {gender}",
+                           f"Suffers from Jaundice: {suffers_from_jaundice}",
+                           f"Family member history with ASD: {family_member_history_with_asd}"]
+                pdf_file_path = generate_pdf_result(diagnosis[0], details)
+                st.success("PDF report generated successfully!")
 
     elif selected == "Contact Us":
-        # Contact Us Section
         st.title(":envelope: Contact Us")
-        name = st.text_input("Your Name")
-        email = st.text_input("Your Email")
-        message = st.text_area("Your Message")
+        name = st.text_input("Name")
+        email = st.text_input("Email")
+        message = st.text_area("Message")
         if st.button("Send"):
             send_email(name, email, message)
 
     elif selected == "Logout":
-        # Logout section
         st.session_state['logged_in'] = False
         del st.session_state['username']  # Optionally remove username from session
-        st.success("You have successfully logged out.")
         st.experimental_rerun()  # Refresh the app
 
-    # Close the database connection
-    conn.close()
+    conn.close()  # Close the database connection
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

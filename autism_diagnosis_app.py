@@ -6,6 +6,8 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import pickle
 from PIL import Image
+import smtplib
+from email.mime.text import MIMEText
 
 # Constants
 DATABASE_NAME = 'naz.db'
@@ -71,6 +73,24 @@ def load_model_and_scaler():
 def load_data():
     asd_data_csv = pd.read_csv(DATASET_FILE)
     return asd_data_csv
+
+# Function to send an email
+def send_email(name, email, message):
+    try:
+        msg = MIMEText(message)
+        msg['Subject'] = f"Contact Form Submission from {name}"
+        msg['From'] = email
+        msg['To'] = "YOUREMAIL@EMAIL.COM"  # Replace with your email
+
+        # Replace with your SMTP server details
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            server.login("YOUR_EMAIL@gmail.com", "YOUR_PASSWORD")  # Use app password if 2FA is enabled
+            server.send_message(msg)
+
+        st.success("Your message has been sent successfully!")
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
 
 # Main application function
 def main():
@@ -178,20 +198,16 @@ def main():
                 st.write('The person is diagnosed with Autism Spectrum Disorder.')
 
     elif selected == "Contact Us":
-    # Contact Us Section
-    st.title(":mailbox: :blue[Get In Touch With Us!]")
-
-    name = st.text_input("Your Name", key="contact_name")
-    email = st.text_input("Your Email", key="contact_email")  # Removed type argument
-    message = st.text_area("Your Message", key="contact_message")
-
-    if st.button("Send"):
-        if name and email and message:
-            # Example of sending the message, update with your actual logic
-            st.success("Your message has been sent successfully!")
-        else:
-            st.error("Please fill out all fields.")
-
+        # Contact Us Section
+        st.title(":mailbox: :blue[Get In Touch With Us!]")
+        name = st.text_input("Your Name")
+        email = st.text_input("Your Email", type="email")
+        message = st.text_area("Your Message")
+        if st.button("Send"):
+            if name and email and message:
+                send_email(name, email, message)
+            else:
+                st.error("Please fill out all fields.")
 
         # Load local CSS file for styling
         def local_css(file_name):

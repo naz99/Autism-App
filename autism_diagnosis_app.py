@@ -82,16 +82,16 @@ def send_email(name, email, message):
         server.starttls()
 
         # Log in to your email account (use App Password)
-        server.login("your_email@gmail.com", "your_app_password")  # Replace with your email and app password
+        server.login("nazruliskandar99.ni@gmail.com", "ompo rqui qgxb fzyl")  # Replace with your email and app password
 
         # Create the email content
         msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
         msg['Subject'] = 'Contact Us Form Submission'
         msg['From'] = email
-        msg['To'] = "your_email@gmail.com"  # Replace with your email to receive messages
+        msg['To'] = "nazruliskandar99.ni@gmail.com"  # Replace with your email to receive messages
 
         # Send the email
-        server.sendmail(email, "your_email@gmail.com", msg.as_string())  # Replace with your email to receive messages
+        server.sendmail(email, "nazruliskandar99.ni@gmail.com", msg.as_string())  # Replace with your email to receive messages
         server.quit()
         st.success("Your message has been sent successfully!")
     except Exception as e:

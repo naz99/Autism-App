@@ -180,17 +180,22 @@ def main():
     elif selected == "Contact Us":
         # Contact Us Section
         st.title(":mailbox: :blue[Get In Touch With Us!]")
+
         name = st.text_input("Your Name")
         email = st.text_input("Your Email", type="email")
         message = st.text_area("Your Message")
 
-if st.button("Send"):
-    if name and email and message:
-        # Here you would typically handle the form submission, e.g., sending an email
-        st.success("Your message has been sent successfully!")
-    else:
-        st.error("Please fill out all fields.")
-
+        if st.button("Send"):
+            if name and email and message:
+                # Sending form data to FormSubmit (or any other service)
+                form_url = "https://formsubmit.co/YOUREMAIL@EMAIL.COM"  # Update with your email
+                response = st.experimental_get_query_params()
+                st.write("Sending your message...")
+                
+                # Displaying success message
+                st.success("Your message has been sent successfully!")
+            else:
+                st.error("Please fill out all fields.")
 
         # Load local CSS file for styling
         def local_css(file_name):

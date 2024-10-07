@@ -149,65 +149,67 @@ def main():
             if result:
                 st.success("Logged In as {}".format(username))
                 st.session_state['logged_in'] = True  # Set session state for logged-in users
-                st.experimental_rerun()  # Rerun the app to show the Autism Diagnosis section
             else:
                 st.warning("Incorrect Username/Password")
 
     elif selected == "Autism Diagnosis":
-        # Autism Diagnosis Section
-        st.title('Autism Diagnosis')
+        if not st.session_state['logged_in']:
+            st.warning("Please log in to access the Autism Diagnosis section.")
+        else:
+            # Autism Diagnosis Section
+            st.title('Autism Diagnosis')
 
-        # Load model and scaler
-        classifier, scaler = load_model_and_scaler()
+            # Load model and scaler
+            classifier, scaler = load_model_and_scaler()
 
-        # Input form for prediction
-        social_responsiveness = st.slider("Social Responsiveness", min_value=0, max_value=10)
-        age = st.slider("Age", min_value=0, max_value=18)
-        speech_delay = st.radio("Speech Delay", ["No", "Yes"])
-        learning_disorder = st.radio("Learning Disorder", ["No", "Yes"])
-        genetic_disorders = st.radio("Genetic Disorders", ["No", "Yes"])
-        depression = st.radio("Depression", ["No", "Yes"])
-        intellectual_disability = st.radio("Intellectual Disability", ["No", "Yes"])
-        social_behavioral_issues = st.radio("Social/Behavioral Issues", ["No", "Yes"])
-        anxiety_disorder = st.radio("Anxiety Disorder", ["No", "Yes"])
-        gender = st.selectbox("Gender", ["Female", "Male"])
-        suffers_from_jaundice = st.radio("Suffers from Jaundice", ["No", "Yes"])
-        family_member_history_with_asd = st.radio("Family member history with ASD", ["No", "Yes"])
-        submit_button = st.button(label='Predict')
+            # Input form for prediction
+            social_responsiveness = st.slider("Social Responsiveness", min_value=0, max_value=10)
+            age = st.slider("Age", min_value=0, max_value=18)
+            speech_delay = st.radio("Speech Delay", ["No", "Yes"])
+            learning_disorder = st.radio("Learning Disorder", ["No", "Yes"])
+            genetic_disorders = st.radio("Genetic Disorders", ["No", "Yes"])
+            depression = st.radio("Depression", ["No", "Yes"])
+            intellectual_disability = st.radio("Intellectual Disability", ["No", "Yes"])
+            social_behavioral_issues = st.radio("Social/Behavioral Issues", ["No", "Yes"])
+            anxiety_disorder = st.radio("Anxiety Disorder", ["No", "Yes"])
+            gender = st.selectbox("Gender", ["Female", "Male"])
+            suffers_from_jaundice = st.radio("Suffers from Jaundice", ["No", "Yes"])
+            family_member_history_with_asd = st.radio("Family member history with ASD", ["No", "Yes"])
+            submit_button = st.button(label='Predict')
 
-        if submit_button:
-            # Convert input data to numerical values
-            input_data = [
-                social_responsiveness, age,
-                1 if speech_delay == "Yes" else 0,
-                1 if learning_disorder == "Yes" else 0,
-                1 if genetic_disorders == "Yes" else 0,
-                1 if depression == "Yes" else 0,
-                1 if intellectual_disability == "Yes" else 0,
-                1 if social_behavioral_issues == "Yes" else 0,
-                1 if anxiety_disorder == "Yes" else 0,
-                1 if gender == "Female" else 0,
-                1 if suffers_from_jaundice == "Yes" else 0,
-                1 if family_member_history_with_asd == "Yes" else 0
-            ]
+            if submit_button:
+                # Convert input data to numerical values
+                input_data = [
+                    social_responsiveness, age,
+                    1 if speech_delay == "Yes" else 0,
+                    1 if learning_disorder == "Yes" else 0,
+                    1 if genetic_disorders == "Yes" else 0,
+                    1 if depression == "Yes" else 0,
+                    1 if intellectual_disability == "Yes" else 0,
+                    1 if social_behavioral_issues == "Yes" else 0,
+                    1 if anxiety_disorder == "Yes" else 0,
+                    1 if gender == "Female" else 0,
+                    1 if suffers_from_jaundice == "Yes" else 0,
+                    1 if family_member_history_with_asd == "Yes" else 0
+                ]
 
-            # Standardize the input data
-            input_data_standardized = scaler.transform([input_data])
+                # Standardize the input data
+                input_data_standardized = scaler.transform([input_data])
 
-            # Make prediction
-            prediction = classifier.predict(input_data_standardized)
+                # Make prediction
+                prediction = classifier.predict(input_data_standardized)
 
-            # Interpretation of prediction
-            if prediction[0] == 0:
-                st.write('The person is not diagnosed with Autism Spectrum Disorder.')
-            else:
-                st.write('The person is diagnosed with Autism Spectrum Disorder.')
+                # Interpretation of prediction
+                if prediction[0] == 0:
+                    st.write('The person is not diagnosed with Autism Spectrum Disorder.')
+                else:
+                    st.write('The person is diagnosed with Autism Spectrum Disorder.')
 
     elif selected == "Contact Us":
         # Contact Us Section
         st.title(":mailbox: :blue[Get In Touch With Us!]") 
         name = st.text_input("Your Name")
-        email = st.text_input("Your Email")  # Removed type="email"
+        email = st.text_input("Your Email")
         message = st.text_area("Your Message")
 
         if st.button("Send"):

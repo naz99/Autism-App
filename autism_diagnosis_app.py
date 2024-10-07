@@ -8,6 +8,11 @@ from PIL import Image
 import smtplib
 from email.mime.text import MIMEText
 from fpdf import FPDF
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Constants
 DATABASE_NAME = 'naz.db'
@@ -79,12 +84,12 @@ def send_email(name, email, message):
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        server.login("nazruliskandar99.ni@gmail.com", "ompo rqui qgxb fzyl")  # Replace with your email and app password
+        server.login(os.getenv("EMAIL_ADDRESS"), os.getenv("EMAIL_APP_PASSWORD"))  # Use environment variables
         msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
         msg['Subject'] = 'Contact Us Form Submission'
         msg['From'] = email
-        msg['To'] = "ynazruliskandar99.ni@gmail.com"  # Replace with your email to receive messages
-        server.sendmail(email, "nazruliskandar99.ni@gmail.com", msg.as_string())  # Replace with your email to receive messages
+        msg['To'] = os.getenv("nazruliskandar99.ni@gmail.com")  # Replace with your email to receive messages
+        server.sendmail(email, os.getenv("nazruliskandar99.ni@gmail.com"), msg.as_string())  # Replace with your email to receive messages
         server.quit()
         st.success("Your message has been sent successfully!")
     except Exception as e:
@@ -217,60 +222,33 @@ def main():
 
             # Store the result for later review
             st.session_state['diagnosis_result'] = result_text
-            st.session_state['diagnosis_details'] = [
-                f"Social Responsiveness: {social_responsiveness}",
-                f"Age: {age}",
-                f"Speech Delay: {speech_delay}",
-                f"Learning Disorder: {learning_disorder}",
-                f"Genetic Disorders: {genetic_disorders}",
-                f"Depression: {depression}",
-                f"Intellectual Disability: {intellectual_disability}",
-                f"Social/Behavioral Issues: {social_behavioral_issues}",
-                f"Anxiety Disorder: {anxiety_disorder}",
-                f"Gender: {gender}",
-                f"Suffers from Jaundice: {suffers_from_jaundice}",
-                f"Family member history with ASD: {family_member_history_with_asd}",
-            ]
+            st.session_state['diagnosis_details'] = input_data
 
-            st.write(result_text)
-
-            # Generate and download PDF
-            pdf_file_path = generate_pdf_result(result_text, st.session_state['diagnosis_details'])
-            with open(pdf_file_path, "rb") as f:
-                st.download_button("Download Diagnosis Result as PDF", f, file_name=pdf_file_path)
-
-            # Review Section
-            st.subheader("Review Your Diagnosis Result")
-            st.write(st.session_state['diagnosis_result'])
-            for detail in st.session_state['diagnosis_details']:
-                st.write(detail)
+            # Generate PDF report
+            pdf_file_path = generate_pdf_result(result_text, input_data)
+            st.success("Diagnosis Result: " + result_text)
+            st.download_button("Download Diagnosis Report", pdf_file_path, "diagnosis_result.pdf")
 
     elif selected == "Contact Us":
-        # Contact Us Section
-        st.title(":mailbox: :blue[Get In Touch With Us!]")
+        # Contact Us section
+        st.title("Contact Us")
         name = st.text_input("Your Name")
-        email = st.text_input("Your Email")  # Removed type="email"
+        email = st.text_input("Your Email")
         message = st.text_area("Your Message")
-
         if st.button("Send"):
             if name and email and message:
-                # Simple email validation
-                if "@" not in email or "." not in email:
-                    st.error("Please enter a valid email address.")
-                else:
-                    send_email(name, email, message)
+                send_email(name, email, message)
             else:
-                st.error("Please fill out all fields.")
+                st.warning("Please fill in all fields.")
 
     elif selected == "Logout":
-        # Logout Section
-        st.session_state['logged_in'] = False  # Update the session state
+        # Logout functionality
+        st.session_state['logged_in'] = False  # Clear logged-in state
         st.session_state.pop('username', None)  # Remove username from session state
-        st.success("You have successfully logged out.")
-        st.experimental_rerun()  # Refresh the app to show the updated navigation
+        st.success("You have logged out successfully!")
+        st.experimental_rerun()  # Refresh the app
 
-    conn.close()  # Close the database connection
+    conn.close()
 
-# Run the main function
 if __name__ == "__main__":
     main()

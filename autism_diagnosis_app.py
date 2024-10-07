@@ -7,6 +7,7 @@ import pickle
 from PIL import Image
 import smtplib
 from email.mime.text import MIMEText
+import os
 
 # Constants
 DATABASE_NAME = 'naz.db'
@@ -80,17 +81,17 @@ def send_email(name, email, message):
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
 
-        # Log in to your email account (use App Password)
-        server.login("nazruliskandar99.ni@gmail.com", "yompo rqui qgxb fzyl")  # Replace with your email and app password
+        # Log in to your email account using environment variables
+        server.login(os.getenv("EMAIL_USER"), os.getenv("EMAIL_PASSWORD"))  # Use environment variables for security
 
         # Create the email content
         msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
         msg['Subject'] = 'Contact Us Form Submission'
-        msg['From'] = email
-        msg['To'] = "nazruliskandar99.ni@gmail.com"  # Replace with your email to receive messages
+        msg['From'] = os.getenv("EMAIL_USER")  # Use environment variable for sender
+        msg['To'] = os.getenv("EMAIL_USER")  # Use environment variable for recipient
 
         # Send the email
-        server.sendmail(email, "nazruliskandar99.ni@gmail.com", msg.as_string())  # Replace with your email to receive messages
+        server.sendmail(msg['From'], msg['To'], msg.as_string())
         server.quit()
         st.success("Your message has been sent successfully!")
     except Exception as e:
@@ -99,6 +100,10 @@ def send_email(name, email, message):
 # Main application function
 def main():
     st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
+
+    # Initialize session state
+    if 'logged_in' not in st.session_state:
+        st.session_state['logged_in'] = False
 
     # Sidebar navigation
     menu = ["Login", "Signup", "Autism Diagnosis", "Contact Us"]
@@ -118,12 +123,8 @@ def main():
         if st.button("Login"):
             hashed_pswd = make_hashes(password)
             result = login_user(conn, username, hashed_pswd)
-            prog = st.progress(0)
-            for per_comp in range(100):
-                time.sleep(0.05)
-                prog.progress(per_comp + 1)
             if result:
-                st.success("Logged In as {}".format(username))
+                st.success(f"Logged In as {username}")
                 st.session_state['logged_in'] = True  # Set session state for logged in users
                 st.experimental_rerun()  # Rerun the app to show the Autism Diagnosis page
             else:
@@ -139,7 +140,7 @@ def main():
 
     elif selected == "Autism Diagnosis":
         # Autism Diagnosis Section
-        if 'logged_in' not in st.session_state or not st.session_state['logged_in']:
+        if not st.session_state['logged_in']:
             st.warning("Please log in to access the Autism Diagnosis section.")
             st.stop()  # Stop execution if not logged in
 
@@ -194,6 +195,7 @@ def main():
     elif selected == "Contact Us":
         # Contact Us Section
         st.title(":mailbox: :blue[Get In Touch With Us!]")
+
         name = st.text_input("Your Name")
         email = st.text_input("Your Email")  # Removed type="email"
         message = st.text_area("Your Message")

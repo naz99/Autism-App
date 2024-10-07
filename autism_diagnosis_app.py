@@ -10,121 +10,126 @@ from fpdf import FPDF
 from dotenv import load_dotenv
 import os
 
-# Load environment variables
-load_dotenv()
-EMAIL_USER = os.getenv("EMAIL_USER")
-EMAIL_PASS = os.getenv("EMAIL_PASS")
-
-# Check if environment variables are loaded
-if EMAIL_USER is None or EMAIL_PASS is None:
-    st.error("Error loading email credentials. Please check your .env file.")
-
-# Constants
-DATABASE_NAME = 'naz.db'
-MODEL_FILE = "autism_random_forest.pkl"
-SCALER_FILE = 'scaler.pkl'
-DATASET_FILE = "asd_data_csv.csv"
-
-# Function to hash passwords
-def make_hashes(password):
-    return hashlib.sha256(str.encode(password)).hexdigest()
-
-# Initialize database connection
-def init_db_connection():
-    try:
-        conn = sqlite3.connect(DATABASE_NAME)
-        return conn
-    except sqlite3.DatabaseError as e:
-        st.error(f"Database connection failed: {e}")
-        return None
-
-# Create a new table if it doesn't exist
-def create_usertable(conn):
-    try:
-        c = conn.cursor()
-        c.execute('CREATE TABLE IF NOT EXISTS userstable(username TEXT PRIMARY KEY, password TEXT)')
-        conn.commit()
-    except sqlite3.DatabaseError as e:
-        st.error(f"Error creating table: {e}")
-
-# Add new user data
-def add_userdata(conn, username, password):
-    try:
-        c = conn.cursor()
-        c.execute('INSERT INTO userstable(username, password) VALUES (?, ?)', (username, password))
-        conn.commit()
-        st.success(f"User '{username}' added successfully.")
-    except sqlite3.IntegrityError:
-        st.error(f"Username '{username}' already exists. Please choose a different username.")
-    except sqlite3.DatabaseError as e:
-        st.error(f"Error adding user data: {e}")
-
-# Verify login details
-def login_user(conn, username, password):
-    try:
-        c = conn.cursor()
-        c.execute('SELECT * FROM userstable WHERE username = ? AND password = ?', (username, password))
-        return c.fetchall()
-    except sqlite3.DatabaseError as e:
-        st.error(f"Login error: {e}")
-        return []
-
-# Load the model and scaler
-@st.cache_resource
-def load_model_and_scaler():
-    with open(MODEL_FILE, "rb") as model_file:
-        classifier = pickle.load(model_file)
-    with open(SCALER_FILE, "rb") as scaler_file:
-        scaler = pickle.load(scaler_file)
-    return classifier, scaler
-
-# Load the dataset
-@st.cache_data
-def load_data():
-    asd_data_csv = pd.read_csv(DATASET_FILE)
-    return asd_data_csv
-
-# Send email function
-def send_email(name, email, message):
-    try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(EMAIL_USER, EMAIL_PASS)  # Use environment variables for credentials
-        msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
-        msg['Subject'] = 'Contact Us Form Submission'
-        msg['From'] = EMAIL_USER  # Sender's email
-        msg['To'] = EMAIL_USER  # Change this to the recipient's email address as needed
-        server.sendmail(EMAIL_USER, EMAIL_USER, msg.as_string())
-        server.quit()
-        st.success("Your message has been sent successfully!")
-    except Exception as e:
-        st.error(f"An error occurred while sending the email: {e}")
-
-# Function to generate PDF report
-def generate_pdf_result(result, details):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-
-    pdf.cell(200, 10, txt="Autism Diagnosis Result", ln=True, align='C')
-    pdf.cell(200, 10, txt=f"Diagnosis: {result}", ln=True)
-    
-    pdf.cell(200, 10, txt="Input Details:", ln=True)
-    for label, value in details.items():
-        pdf.cell(200, 10, txt=f"{label}: {value}", ln=True)
-
-    pdf_file_path = "diagnosis_result.pdf"
-    pdf.output(pdf_file_path)
-
-    return pdf_file_path
-
-# Main application function
 def main():
+    # Set page config at the very start of the main function
     st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
+    
+    # Initialize session state
+    if 'logged_in' not in st.session_state:
+        st.session_state['logged_in'] = False
 
+    # Load environment variables
+    load_dotenv()
+    EMAIL_USER = os.getenv("EMAIL_USER")
+    EMAIL_PASS = os.getenv("EMAIL_PASS")
+
+    # Check if environment variables are loaded
+    if EMAIL_USER is None or EMAIL_PASS is None:
+        st.error("Error loading email credentials. Please check your .env file.")
+
+    # Constants
+    DATABASE_NAME = 'naz.db'
+    MODEL_FILE = "autism_random_forest.pkl"
+    SCALER_FILE = 'scaler.pkl'
+    DATASET_FILE = "asd_data_csv.csv"
+
+    # Function to hash passwords
+    def make_hashes(password):
+        return hashlib.sha256(str.encode(password)).hexdigest()
+
+    # Initialize database connection
+    def init_db_connection():
+        try:
+            conn = sqlite3.connect(DATABASE_NAME)
+            return conn
+        except sqlite3.DatabaseError as e:
+            st.error(f"Database connection failed: {e}")
+            return None
+
+    # Create a new table if it doesn't exist
+    def create_usertable(conn):
+        try:
+            c = conn.cursor()
+            c.execute('CREATE TABLE IF NOT EXISTS userstable(username TEXT PRIMARY KEY, password TEXT)')
+            conn.commit()
+        except sqlite3.DatabaseError as e:
+            st.error(f"Error creating table: {e}")
+
+    # Add new user data
+    def add_userdata(conn, username, password):
+        try:
+            c = conn.cursor()
+            c.execute('INSERT INTO userstable(username, password) VALUES (?, ?)', (username, password))
+            conn.commit()
+            st.success(f"User '{username}' added successfully.")
+        except sqlite3.IntegrityError:
+            st.error(f"Username '{username}' already exists. Please choose a different username.")
+        except sqlite3.DatabaseError as e:
+            st.error(f"Error adding user data: {e}")
+
+    # Verify login details
+    def login_user(conn, username, password):
+        try:
+            c = conn.cursor()
+            c.execute('SELECT * FROM userstable WHERE username = ? AND password = ?', (username, password))
+            return c.fetchall()
+        except sqlite3.DatabaseError as e:
+            st.error(f"Login error: {e}")
+            return []
+
+    # Load the model and scaler
+    @st.cache_resource
+    def load_model_and_scaler():
+        with open(MODEL_FILE, "rb") as model_file:
+            classifier = pickle.load(model_file)
+        with open(SCALER_FILE, "rb") as scaler_file:
+            scaler = pickle.load(scaler_file)
+        return classifier, scaler
+
+    # Load the dataset
+    @st.cache_data
+    def load_data():
+        asd_data_csv = pd.read_csv(DATASET_FILE)
+        return asd_data_csv
+
+    # Send email function
+    def send_email(name, email, message):
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(EMAIL_USER, EMAIL_PASS)  # Use environment variables for credentials
+            msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
+            msg['Subject'] = 'Contact Us Form Submission'
+            msg['From'] = EMAIL_USER  # Sender's email
+            msg['To'] = EMAIL_USER  # Change this to the recipient's email address as a string
+            server.sendmail(EMAIL_USER, EMAIL_USER, msg.as_string())
+            server.quit()
+            st.success("Your message has been sent successfully!")
+        except Exception as e:
+            st.error(f"An error occurred while sending the email: {e}")
+
+    # Function to generate PDF report
+    def generate_pdf_result(result, details):
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+
+        pdf.cell(200, 10, txt="Autism Diagnosis Result", ln=True, align='C')
+        pdf.cell(200, 10, txt=f"Diagnosis: {result}", ln=True)
+        
+        pdf.cell(200, 10, txt="Details:", ln=True)
+        for detail in details:
+            pdf.cell(200, 10, txt=detail, ln=True)
+
+        pdf_file_path = "diagnosis_result.pdf"
+        pdf.output(pdf_file_path)
+
+        return pdf_file_path
+
+    # Main application function
     # Sidebar navigation
     menu = ["Home", "Signup", "Login", "Contact Us"]
-    if 'logged_in' in st.session_state and st.session_state['logged_in']:
+    if st.session_state['logged_in']:
         menu.append("Autism Diagnosis")
         menu.append("Logout")  # Add logout option to the menu
 
@@ -208,62 +213,53 @@ def main():
                 1 if intellectual_disability == "Yes" else 0,
                 1 if social_behavioral_issues == "Yes" else 0,
                 1 if anxiety_disorder == "Yes" else 0,
-                1 if gender == "Female" else 0,
+                1 if gender == "Male" else 0,
                 1 if suffers_from_jaundice == "Yes" else 0,
                 1 if family_member_history_with_asd == "Yes" else 0
             ]
 
-            # Scale input data
-            scaled_input_data = scaler.transform([input_data])
-
-            # Predict using the model
-            prediction = classifier.predict(scaled_input_data)
-
+            # Scale the input data
+            input_data_scaled = scaler.transform([input_data])
+            # Make prediction
+            prediction = classifier.predict(input_data_scaled)
             diagnosis_result = "Positive" if prediction[0] == 1 else "Negative"
-            st.write(f"Diagnosis Result: {diagnosis_result}")
-
-            # Prepare input details for PDF
-            details = {
-                "Social Responsiveness": social_responsiveness,
-                "Age": age,
-                "Speech Delay": speech_delay,
-                "Learning Disorder": learning_disorder,
-                "Genetic Disorders": genetic_disorders,
-                "Depression": depression,
-                "Intellectual Disability": intellectual_disability,
-                "Social/Behavioral Issues": social_behavioral_issues,
-                "Anxiety Disorder": anxiety_disorder,
-                "Gender": gender,
-                "Suffers from Jaundice": suffers_from_jaundice,
-                "Family History with ASD": family_member_history_with_asd,
-            }
 
             # Generate PDF report
-            pdf_file_path = generate_pdf_result(diagnosis_result, details)
-            st.success("PDF report generated successfully!")
+            pdf_file_path = generate_pdf_result(diagnosis_result, input_data)
 
-            # Provide download link for the PDF
+            # Display results
+            st.subheader("Diagnosis Result")
+            st.write(f"The diagnosis result is: **{diagnosis_result}**")
+
+            # Provide download link for the PDF report
             with open(pdf_file_path, "rb") as pdf_file:
                 st.download_button("Download PDF Report", pdf_file, file_name=pdf_file_path)
 
     elif selected == "Contact Us":
         # Contact Us Section
-        st.title(":incoming_envelope: Contact Us")
-        name = st.text_input("Your Name")
-        email = st.text_input("Your Email")
-        message = st.text_area("Your Message")
+        st.title("Contact Us")
+        contact_name = st.text_input("Name")
+        contact_email = st.text_input("Email")
+        contact_message = st.text_area("Message")
+
         if st.button("Send"):
-            if name and email and message:
-                send_email(name, email, message)
+            if contact_name and contact_email and contact_message:
+                send_email(contact_name, contact_email, contact_message)
             else:
-                st.warning("Please fill in all fields.")
+                st.warning("Please fill all fields!")
 
     elif selected == "Logout":
-        st.session_state['logged_in'] = False  # Clear the session state on logout
-        st.success("You have been logged out.")
+        # Logout Section
+        if 'logged_in' in st.session_state and st.session_state['logged_in']:
+            st.session_state['logged_in'] = False  # Clear the session state on logout
+            st.success("You have been logged out.")
+        else:
+            st.warning("You are not logged in.")
+
+        # Refresh the app to show the updated menu
         st.experimental_rerun()  # Refresh the app to show the updated menu
 
-    conn.close()
+    conn.close()  # Close the database connection at the end of the app
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

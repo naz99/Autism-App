@@ -199,46 +199,65 @@ def main():
 
         if st.button("Diagnose"):
             # Prepare input data for prediction
-            input_data = [social_responsiveness, age, 1 if speech_delay == "Yes" else 0,
-                           1 if learning_disorder == "Yes" else 0,
-                           1 if genetic_disorders == "Yes" else 0,
-                           1 if depression == "Yes" else 0,
-                           1 if intellectual_disability == "Yes" else 0,
-                           1 if social_behavioral_issues == "Yes" else 0,
-                           1 if anxiety_disorder == "Yes" else 0,
-                           1 if gender == "Male" else 0,
-                           1 if suffers_from_jaundice == "Yes" else 0,
-                           1 if family_member_history_with_asd == "Yes" else 0]
+            input_data = [
+                social_responsiveness, 
+                age, 
+                1 if speech_delay == "Yes" else 0,
+                1 if learning_disorder == "Yes" else 0,
+                1 if genetic_disorders == "Yes" else 0,
+                1 if depression == "Yes" else 0,
+                1 if intellectual_disability == "Yes" else 0,
+                1 if social_behavioral_issues == "Yes" else 0,
+                1 if anxiety_disorder == "Yes" else 0,
+                1 if gender == "Male" else 0,
+                1 if suffers_from_jaundice == "Yes" else 0,
+                1 if family_member_history_with_asd == "Yes" else 0
+            ]
 
-            # Scale input data
-            input_data_scaled = scaler.transform(input_data)
-            diagnosis = classifier.predict(input_data_scaled)
+            # Reshape and scale the input data
+            input_data = pd.DataFrame([input_data])
+            scaled_input_data = scaler.transform(input_data)
 
-            if diagnosis[0] == 1:
-                st.success("The model predicts: **Autism**")
-            else:
-                st.success("The model predicts: **No Autism**")
+            # Make prediction
+            prediction = classifier.predict(scaled_input_data)
+            diagnosis_result = "Autism" if prediction[0] == 1 else "No Autism"
 
-            # Generate and download the PDF report
-            if st.button("Download PDF Report"):
-                pdf_file_path = generate_pdf_result(diagnosis[0], input_data)
-                with open(pdf_file_path, "rb") as pdf_file:
-                    st.download_button("Download PDF", pdf_file, file_name="diagnosis_result.pdf", mime='application/pdf')
+            # Prepare details for PDF
+            details = [f"Social Responsiveness: {social_responsiveness}",
+                       f"Age: {age}",
+                       f"Speech Delay: {speech_delay}",
+                       f"Learning Disorder: {learning_disorder}",
+                       f"Genetic Disorders: {genetic_disorders}",
+                       f"Depression: {depression}",
+                       f"Intellectual Disability: {intellectual_disability}",
+                       f"Social/Behavioral Issues: {social_behavioral_issues}",
+                       f"Anxiety Disorder: {anxiety_disorder}",
+                       f"Gender: {gender}",
+                       f"Suffers from Jaundice: {suffers_from_jaundice}",
+                       f"Family Member History with ASD: {family_member_history_with_asd}"]
+
+            # Generate PDF
+            pdf_path = generate_pdf_result(diagnosis_result, details)
+            st.success("Diagnosis Result: {}".format(diagnosis_result))
+            st.download_button("Download PDF", pdf_path, "diagnosis_result.pdf")
 
     elif selected == "Contact Us":
-        st.title(":email: Contact Us")
-        name = st.text_input("Name")
-        email = st.text_input("Email")
-        message = st.text_area("Message")
+        # Contact Us Section
+        st.title(":email: :blue[Contact Us]")
+        contact_name = st.text_input("Name")
+        contact_email = st.text_input("Email")
+        contact_message = st.text_area("Message")
         if st.button("Send Message"):
-            send_email(name, email, message)
+            if contact_name and contact_email and contact_message:
+                send_email(contact_name, contact_email, contact_message)
+            else:
+                st.warning("Please fill in all fields before sending your message.")
 
     elif selected == "Logout":
-        st.session_state['logged_in'] = False
-        st.session_state.pop('username', None)  # Remove username from session state
-        st.success("You have successfully logged out.")
+        st.session_state['logged_in'] = False  # Clear session state
+        st.experimental_rerun()  # Refresh to show the updated state
 
-    conn.close()  # Close database connection
+    conn.close()  # Close the database connection
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

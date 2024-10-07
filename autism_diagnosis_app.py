@@ -89,10 +89,10 @@ def send_email(name, email, message):
         msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
         msg['Subject'] = 'Contact Us Form Submission'
         msg['From'] = email
-        msg['To'] = "your_email@gmail.com"  # Replace with your email to receive messages
+        msg['To'] = "nazruliskandar99.ni@gmail.com"  # Replace with your email to receive messages
 
         # Send the email
-        server.sendmail(email, "nazruliskandar99.ni@gmail.com", msg.as_string())  # Replace with your email to receive messages
+        server.sendmail(email, "your_email@gmail.com", msg.as_string())  # Replace with your email to receive messages
         server.quit()
         st.success("Your message has been sent successfully!")
     except Exception as e:
@@ -160,6 +160,11 @@ def main():
     st.write("Please login or create an account to continue.")
     selected_action = st.radio("Choose an action:", ["Signup", "Login"])
 
+    # Session state to keep track of login status
+    if 'logged_in' not in st.session_state:
+        st.session_state['logged_in'] = False
+        st.session_state['username'] = ""
+
     if selected_action == "Signup":
         st.subheader(":iphone: Create New Account")
         new_user = st.text_input("Username")
@@ -179,101 +184,107 @@ def main():
                 time.sleep(0.05)
                 prog.progress(per_comp + 1)
             if result:
+                st.session_state['logged_in'] = True
+                st.session_state['username'] = username
                 st.success("Logged In as {}".format(username))
-                st.warning("Go to Home Menu!")
             else:
                 st.warning("Incorrect Username/Password")
 
     # Navigation for other pages
-    menu = ["Home", "Autism Diagnosis", "Review Results", "Contact Us"]
-    selected_page = st.sidebar.radio("Navigation", menu)
+    if st.session_state['logged_in']:
+        menu = ["Home", "Autism Diagnosis", "Review Results", "Contact Us"]
+        selected_page = st.sidebar.radio("Navigation", menu)
 
-    if selected_page == "Home":
-        st.write("---")
-        col1, col2 = st.columns([3, 2])
-        with col1:
-            st.title("What is Autism Spectrum Disorder?")
-            st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
-        with col2:
-            img1 = Image.open("asd_child.jpg")
-            st.image(img1, width=300)
+        if selected_page == "Home":
+            st.write("---")
+            col1, col2 = st.columns([3, 2])
+            with col1:
+                st.title("What is Autism Spectrum Disorder?")
+                st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
+            with col2:
+                img1 = Image.open("asd_child.jpg")
+                st.image(img1, width=300)
 
-    elif selected_page == "Autism Diagnosis":
-        st.title('Autism Diagnosis')
-        classifier, scaler = load_model_and_scaler()
-        social_responsiveness = st.slider("Social Responsiveness", min_value=0, max_value=10)
-        age = st.slider("Age", min_value=0, max_value=18)
-        speech_delay = st.radio("Speech Delay", ["No", "Yes"])
-        learning_disorder = st.radio("Learning Disorder", ["No", "Yes"])
-        genetic_disorders = st.radio("Genetic Disorders", ["No", "Yes"])
-        depression = st.radio("Depression", ["No", "Yes"])
-        intellectual_disability = st.radio("Intellectual Disability", ["No", "Yes"])
-        social_behavioral_issues = st.radio("Social/Behavioral Issues", ["No", "Yes"])
-        anxiety_disorder = st.radio("Anxiety Disorder", ["No", "Yes"])
-        gender = st.selectbox("Gender", ["Female", "Male"])
-        suffers_from_jaundice = st.radio("Suffers from Jaundice", ["No", "Yes"])
-        family_member_history_with_asd = st.radio("Family member history with ASD", ["No", "Yes"])
-        submit_button = st.button(label='Predict')
+        elif selected_page == "Autism Diagnosis":
+            st.title('Autism Diagnosis')
+            classifier, scaler = load_model_and_scaler()
+            social_responsiveness = st.slider("Social Responsiveness", min_value=0, max_value=10)
+            age = st.slider("Age", min_value=0, max_value=18)
+            speech_delay = st.radio("Speech Delay", ["No", "Yes"])
+            learning_disorder = st.radio("Learning Disorder", ["No", "Yes"])
+            genetic_disorders = st.radio("Genetic Disorders", ["No", "Yes"])
+            depression = st.radio("Depression", ["No", "Yes"])
+            intellectual_disability = st.radio("Intellectual Disability", ["No", "Yes"])
+            social_behavioral_issues = st.radio("Social/Behavioral Issues", ["No", "Yes"])
+            anxiety_disorder = st.radio("Anxiety Disorder", ["No", "Yes"])
+            gender = st.radio("Gender", ["Male", "Female"])
+            suffers_from_jaundice = st.radio("Suffers from Jaundice", ["No", "Yes"])
+            family_member_history_with_asd = st.radio("Family Member History with ASD", ["No", "Yes"])
 
-        if submit_button:
-            input_data = [
-                social_responsiveness, age,
-                int(speech_delay == "Yes"), int(learning_disorder == "Yes"),
-                int(genetic_disorders == "Yes"), int(depression == "Yes"),
-                int(intellectual_disability == "Yes"), int(social_behavioral_issues == "Yes"),
-                int(anxiety_disorder == "Yes"), int(gender == "Male"),
-                int(suffers_from_jaundice == "Yes"), int(family_member_history_with_asd == "Yes")
-            ]
+            submit_button = st.button(label="Submit")
 
-            scaled_data = scaler.transform([input_data])
-            prediction = classifier.predict(scaled_data)
+            if submit_button:
+                input_data = [
+                    social_responsiveness, age,
+                    int(speech_delay == "Yes"), int(learning_disorder == "Yes"),
+                    int(genetic_disorders == "Yes"), int(depression == "Yes"),
+                    int(intellectual_disability == "Yes"), int(social_behavioral_issues == "Yes"),
+                    int(anxiety_disorder == "Yes"), int(gender == "Male"),
+                    int(suffers_from_jaundice == "Yes"), int(family_member_history_with_asd == "Yes")
+                ]
 
-            # Display the prediction result
-            st.write("### Diagnosis Result")
-            if prediction == 0:
-                st.write("The person is **not** diagnosed with Autism Spectrum Disorder.")
+                scaled_data = scaler.transform([input_data])
+                prediction = classifier.predict(scaled_data)
+
+                # Display the prediction result
+                st.write("### Diagnosis Result")
+                if prediction == 0:
+                    st.write("The person is **not** diagnosed with Autism Spectrum Disorder.")
+                else:
+                    st.write("The person is diagnosed with **Autism Spectrum Disorder**.")
+
+                # Save the input data and prediction in session state
+                st.session_state['input_data'] = input_data
+                st.session_state['prediction'] = prediction
+
+        elif selected_page == "Review Results":
+            st.title("Review Your Previous Diagnosis")
+
+            if 'input_data' in st.session_state and 'prediction' in st.session_state:
+                st.write("### Your Input Data")
+                st.write(pd.DataFrame([st.session_state['input_data']], columns=[
+                    "Social Responsiveness", "Age", "Speech Delay", "Learning Disorder", 
+                    "Genetic Disorders", "Depression", "Intellectual Disability",
+                    "Social/Behavioral Issues", "Anxiety Disorder", "Gender",
+                    "Suffers from Jaundice", "Family Member History with ASD"]))
+
+                st.write("### Diagnosis Result")
+                if st.session_state['prediction'] == 0:
+                    st.write("The person is **not** diagnosed with Autism Spectrum Disorder.")
+                else:
+                    st.write("The person is diagnosed with **Autism Spectrum Disorder**.")
+
+                # Generate and download PDF
+                if st.button("Save Results as PDF"):
+                    pdf_filename = generate_pdf(st.session_state['input_data'], st.session_state['prediction'])
+                    st.success("PDF generated successfully!")
+
+                    # Provide download link for the PDF
+                    pdf_download_link = get_pdf_download_link(pdf_filename)
+                    st.markdown(pdf_download_link, unsafe_allow_html=True)
             else:
-                st.write("The person is diagnosed with **Autism Spectrum Disorder**.")
+                st.write("No previous diagnosis results found. Please go to the Autism Diagnosis section to conduct a diagnosis.")
 
-            # Save the input data and prediction in session state
-            st.session_state['input_data'] = input_data
-            st.session_state['prediction'] = prediction
+        elif selected_page == "Contact Us":
+            st.title(":mailbox: :blue[Contact Us]")
+            name = st.text_input("Name")
+            email = st.text_input("Email")
+            message = st.text_area("Message")
+            if st.button("Send"):
+                send_email(name, email, message)
 
-    elif selected_page == "Review Results":
-        st.title("Review Your Previous Diagnosis")
-
-        if 'input_data' in st.session_state and 'prediction' in st.session_state:
-            st.write("### Your Input Data")
-            st.write(pd.DataFrame([st.session_state['input_data']], columns=[
-                "Social Responsiveness", "Age", "Speech Delay", "Learning Disorder", 
-                "Genetic Disorders", "Depression", "Intellectual Disability",
-                "Social/Behavioral Issues", "Anxiety Disorder", "Gender",
-                "Suffers from Jaundice", "Family Member History with ASD"]))
-
-            st.write("### Diagnosis Result")
-            if st.session_state['prediction'] == 0:
-                st.write("The person is **not** diagnosed with Autism Spectrum Disorder.")
-            else:
-                st.write("The person is diagnosed with **Autism Spectrum Disorder**.")
-
-            # Generate and download PDF
-            if st.button("Save Results as PDF"):
-                pdf_filename = generate_pdf(st.session_state['input_data'], st.session_state['prediction'])
-                st.success("PDF generated successfully!")
-
-                # Provide download link for the PDF
-                pdf_download_link = get_pdf_download_link(pdf_filename)
-                st.markdown(pdf_download_link, unsafe_allow_html=True)
-        else:
-            st.write("No previous diagnosis results found. Please go to the Autism Diagnosis section to conduct a diagnosis.")
-
-    elif selected_page == "Contact Us":
-        st.title(":mailbox: :blue[Contact Us]")
-        name = st.text_input("Name")
-        email = st.text_input("Email")
-        message = st.text_area("Message")
-        if st.button("Send"):
-            send_email(name, email, message)
+    else:
+        st.warning("Please login or sign up to access the Autism Diagnosis and other sections.")
 
 # Run the application
 if __name__ == '__main__':

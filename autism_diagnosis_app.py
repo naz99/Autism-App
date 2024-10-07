@@ -247,12 +247,13 @@ def main():
             send_email(name, email, message)
 
     elif selected == "Logout":
-        # Logout Section
-        st.session_state['logged_in'] = False
-        st.session_state.pop('username', None)
-        st.session_state.pop('go_to_diagnosis', None, None)  # Clear the go_to_diagnosis state if it exists
-        st.success("You have been logged out.")
-        st.experimental_rerun()  # Refresh the app after logout
+    st.session_state['logged_in'] = False
+    st.session_state.pop('username', None)  # Remove username from session state
+    st.success("You have successfully logged out.")
+    # Redirect to login page or home
+    st.session_state.pop('go_to_diagnosis', None)  # Clear the go_to_diagnosis state if it exists
+    st.experimental_rerun()  # Refresh the app after logout
+
 
 if __name__ == '__main__':
     main()

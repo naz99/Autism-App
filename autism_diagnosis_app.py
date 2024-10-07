@@ -10,9 +10,6 @@ from fpdf import FPDF
 from dotenv import load_dotenv
 import os
 
-def main():
-    # Set page config at the very start of the main function
-    st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
 # Load environment variables
 load_dotenv()
 EMAIL_USER = os.getenv("EMAIL_USER")
@@ -96,7 +93,7 @@ def send_email(name, email, message):
         msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
         msg['Subject'] = 'Contact Us Form Submission'
         msg['From'] = EMAIL_USER  # Sender's email
-        msg['To'] = EMAIL_USER  # Change this to the recipient's email address as a string
+        msg['To'] = EMAIL_USER  # Change this to the recipient's email address as needed
         server.sendmail(EMAIL_USER, EMAIL_USER, msg.as_string())
         server.quit()
         st.success("Your message has been sent successfully!")
@@ -112,9 +109,9 @@ def generate_pdf_result(result, details):
     pdf.cell(200, 10, txt="Autism Diagnosis Result", ln=True, align='C')
     pdf.cell(200, 10, txt=f"Diagnosis: {result}", ln=True)
     
-    pdf.cell(200, 10, txt="Details:", ln=True)
-    for detail in details:
-        pdf.cell(200, 10, txt=detail, ln=True)
+    pdf.cell(200, 10, txt="Input Details:", ln=True)
+    for label, value in details.items():
+        pdf.cell(200, 10, txt=f"{label}: {value}", ln=True)
 
     pdf_file_path = "diagnosis_result.pdf"
     pdf.output(pdf_file_path)
@@ -211,39 +208,62 @@ def main():
                 1 if intellectual_disability == "Yes" else 0,
                 1 if social_behavioral_issues == "Yes" else 0,
                 1 if anxiety_disorder == "Yes" else 0,
-                1 if gender == "Male" else 0,
+                1 if gender == "Female" else 0,
                 1 if suffers_from_jaundice == "Yes" else 0,
                 1 if family_member_history_with_asd == "Yes" else 0
             ]
 
-            # Scale the input data
-            input_data_scaled = scaler.transform([input_data])
-            # Make prediction
-            prediction = classifier.predict(input_data_scaled)
+            # Scale input data
+            scaled_input_data = scaler.transform([input_data])
+
+            # Predict using the model
+            prediction = classifier.predict(scaled_input_data)
+
             diagnosis_result = "Positive" if prediction[0] == 1 else "Negative"
-            st.success(f"Diagnosis Result: {diagnosis_result}")
+            st.write(f"Diagnosis Result: {diagnosis_result}")
+
+            # Prepare input details for PDF
+            details = {
+                "Social Responsiveness": social_responsiveness,
+                "Age": age,
+                "Speech Delay": speech_delay,
+                "Learning Disorder": learning_disorder,
+                "Genetic Disorders": genetic_disorders,
+                "Depression": depression,
+                "Intellectual Disability": intellectual_disability,
+                "Social/Behavioral Issues": social_behavioral_issues,
+                "Anxiety Disorder": anxiety_disorder,
+                "Gender": gender,
+                "Suffers from Jaundice": suffers_from_jaundice,
+                "Family History with ASD": family_member_history_with_asd,
+            }
 
             # Generate PDF report
-            pdf_file_path = generate_pdf_result(diagnosis_result, input_data)
+            pdf_file_path = generate_pdf_result(diagnosis_result, details)
+            st.success("PDF report generated successfully!")
+
+            # Provide download link for the PDF
             with open(pdf_file_path, "rb") as pdf_file:
-                st.download_button("Download PDF Report", pdf_file, "diagnosis_result.pdf")
+                st.download_button("Download PDF Report", pdf_file, file_name=pdf_file_path)
 
     elif selected == "Contact Us":
         # Contact Us Section
-        st.title(":mailbox: Contact Us")
+        st.title(":incoming_envelope: Contact Us")
         name = st.text_input("Your Name")
         email = st.text_input("Your Email")
         message = st.text_area("Your Message")
         if st.button("Send"):
-            send_email(name, email, message)
+            if name and email and message:
+                send_email(name, email, message)
+            else:
+                st.warning("Please fill in all fields.")
 
     elif selected == "Logout":
-        st.session_state['logged_in'] = False  # Clear the session state
+        st.session_state['logged_in'] = False  # Clear the session state on logout
         st.success("You have been logged out.")
-        st.experimental_rerun()  # Refresh to update the menu
+        st.experimental_rerun()  # Refresh the app to show the updated menu
 
-    # Close database connection
     conn.close()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

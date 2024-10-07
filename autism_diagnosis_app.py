@@ -1,15 +1,12 @@
 import streamlit as st
 import sqlite3
 import hashlib
-import time
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 import pickle
-from PIL import Image
+import base64
+from fpdf import FPDF  # Import the fpdf library for PDF generation
 import smtplib
 from email.mime.text import MIMEText
-from fpdf import FPDF  # Import the fpdf library for PDF generation
-import base64  # Import base64 for downloading the PDF
 
 # Constants
 DATABASE_NAME = 'naz.db'
@@ -136,39 +133,44 @@ def main():
         st.stop()  # Stop execution if database connection failed
     create_usertable(conn)  # Ensure the table is created at the start
 
-    # Login Section
-    st.title(":blue[Autism Spectrum Disorder]")
-    st.write("Welcome to the Autism Spectrum Disorder Diagnosis Application.")
-    st.write("Please login or create an account to continue.")
-    
-    # Login Form
-    username = st.text_input("User Name")
-    password = st.text_input("Password", type='password')
-    if st.button("Login"):
-        hashed_pswd = make_hashes(password)
-        result = login_user(conn, username, hashed_pswd)
-        if result:
-            st.session_state['logged_in'] = True
-            st.session_state['username'] = username
-            st.success(f"Logged In as {username}")
-            st.experimental_rerun()  # Refresh the app to show the main content
-        else:
-            st.warning("Incorrect Username/Password")
+    # Navigation
+    page = st.sidebar.radio("Select a page", ["Login", "Signup"])
 
-    # Signup Form
-    st.write("---")
-    st.write("### Don't have an account? Create a new account below:")
-    new_user = st.text_input("New Username")
-    new_password = st.text_input("New Password", type='password')
-    if st.button("Signup"):
-        add_userdata(conn, new_user, make_hashes(new_password))
+    if page == "Login":
+        # Login Section
+        st.title(":blue[Autism Spectrum Disorder]")
+        st.write("Welcome to the Autism Spectrum Disorder Diagnosis Application.")
+        st.write("Please login to continue.")
+        
+        # Login Form
+        username = st.text_input("User Name")
+        password = st.text_input("Password", type='password')
+        if st.button("Login"):
+            hashed_pswd = make_hashes(password)
+            result = login_user(conn, username, hashed_pswd)
+            if result:
+                st.session_state['logged_in'] = True
+                st.session_state['username'] = username
+                st.success(f"Logged In as {username}")
+                st.experimental_rerun()  # Refresh the app to show the main content
+            else:
+                st.warning("Incorrect Username/Password")
 
-    # Forgot Password Section
-    st.write("### Forgot Password?")
-    st.write("If you have forgotten your password, please contact support.")
+        # Forgot Password Section
+        st.write("### Forgot Password?")
+        st.write("If you have forgotten your password, please contact support.")
 
-    if 'logged_in' in st.session_state and st.session_state['logged_in']:
-        st.write("Please login or sign up to access the Autism Diagnosis and other sections.")
+        if 'logged_in' in st.session_state and st.session_state['logged_in']:
+            st.write("Please login or sign up to access the Autism Diagnosis and other sections.")
+
+    elif page == "Signup":
+        # Signup Section
+        st.title(":blue[Signup Page]")
+        st.write("Create a new account below:")
+        new_user = st.text_input("New Username")
+        new_password = st.text_input("New Password", type='password')
+        if st.button("Signup"):
+            add_userdata(conn, new_user, make_hashes(new_password))
 
 # Run the application
 if __name__ == '__main__':

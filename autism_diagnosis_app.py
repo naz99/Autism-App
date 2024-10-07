@@ -215,46 +215,37 @@ def main():
             # Make prediction
             prediction = classifier.predict(scaler.transform([input_data]))
             diagnosis = ["Autism" if pred == 1 else "No Autism" for pred in prediction]
-            if diagnosis[0] == "Autism":
-                st.success("The model predicts: **Autism**")
-            else:
-                st.success("The model predicts: **No Autism**")
+            result = diagnosis[0]
+
+            # Display result
+            st.success(f"The diagnosis is: {result}")
 
             # Generate PDF report
-            if st.button("Generate PDF Report"):
-                details = [f"Social Responsiveness: {social_responsiveness}",
-                           f"Age: {age}",
-                           f"Speech Delay: {speech_delay}",
-                           f"Learning Disorder: {learning_disorder}",
-                           f"Genetic Disorders: {genetic_disorders}",
-                           f"Depression: {depression}",
-                           f"Intellectual Disability: {intellectual_disability}",
-                           f"Social/Behavioral Issues: {social_behavioral_issues}",
-                           f"Anxiety Disorder: {anxiety_disorder}",
-                           f"Gender: {gender}",
-                           f"Suffers from Jaundice: {suffers_from_jaundice}",
-                           f"Family member history with ASD: {family_member_history_with_asd}"]
-                pdf_file_path = generate_pdf_result(diagnosis[0], details)
-                st.success("PDF report generated successfully!")
+            pdf_file_path = generate_pdf_result(result, input_data)
+            st.success("PDF report generated!")
+            st.download_button("Download PDF Report", pdf_file_path, "diagnosis_result.pdf")
 
     elif selected == "Contact Us":
         # Contact Us Section
-        st.title(":mailbox_with_mail: Contact Us")
-        name = st.text_input("Your Name")
-        email = st.text_input("Your Email")
-        message = st.text_area("Your Message")
+        st.title("Contact Us")
+        name = st.text_input("Name")
+        email = st.text_input("Email")
+        message = st.text_area("Message")
         if st.button("Send"):
-            send_email(name, email, message)
+            if name and email and message:
+                send_email(name, email, message)
+            else:
+                st.error("Please fill in all fields.")
 
     elif selected == "Logout":
-    st.session_state['logged_in'] = False
-    st.session_state.pop('username', None)  # Remove username from session state
-    st.success("You have successfully logged out.")
-    # Redirect to login page or home
-    st.session_state.pop('go_to_diagnosis', None)  # Clear the go_to_diagnosis state if it exists
-    st.experimental_rerun()  # Refresh the app after logout
+        st.session_state['logged_in'] = False
+        st.session_state.pop('username', None)  # Remove username from session state
+        st.success("You have successfully logged out.")
+        # Redirect to login page or home
+        st.session_state.pop('go_to_diagnosis', None)  # Clear the go_to_diagnosis state if it exists
+        st.experimental_rerun()  # Refresh the app after logout
 
+    conn.close()  # Close the database connection when done
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

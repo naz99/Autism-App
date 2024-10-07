@@ -74,23 +74,28 @@ def load_data():
     asd_data_csv = pd.read_csv(DATASET_FILE)
     return asd_data_csv
 
-# Function to send an email
+# Send email function
 def send_email(name, email, message):
     try:
-        msg = MIMEText(message)
-        msg['Subject'] = f"Contact Form Submission from {name}"
+        # Set up the server
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+
+        # Log in to your email account (use App Password)
+        server.login("nazruliskandar99.ni@gmail.com", "@Nazrul1999")  # Replace with your email and app password
+
+        # Create the email content
+        msg = MIMEText(f"Name: {name}\nEmail: {email}\nMessage: {message}")
+        msg['Subject'] = 'Contact Us Form Submission'
         msg['From'] = email
-        msg['To'] = "YOUREMAIL@EMAIL.COM"  # Replace with your email
+        msg['To'] = "YOUR_EMAIL@gmail.com"  # Replace with your email to receive messages
 
-        # Replace with your SMTP server details
-        with smtplib.SMTP('smtp.gmail.com', 587) as server:
-            server.starttls()
-            server.login("YOUR_EMAIL@gmail.com", "YOUR_PASSWORD")  # Use app password if 2FA is enabled
-            server.send_message(msg)
-
+        # Send the email
+        server.sendmail(email, "nazruliskandar99.ni@gmail.com", msg.as_string())  # Replace with your email to receive messages
+        server.quit()
         st.success("Your message has been sent successfully!")
     except Exception as e:
-        st.error(f"An error occurred: {e}")
+        st.error(f"An error occurred while sending the email: {e}")
 
 # Main application function
 def main():
@@ -198,18 +203,23 @@ def main():
     elif selected == "Contact Us":
         # Contact Us Section
         st.title(":mailbox: :blue[Get In Touch With Us!]")
-        
         name = st.text_input("Your Name")
-        email = st.text_input("Your Email")  # Removed type="email"
+        email = st.text_input("Your Email", type="email")
         message = st.text_area("Your Message")
-        
+
         if st.button("Send"):
             if name and email and message:
                 send_email(name, email, message)
             else:
                 st.error("Please fill out all fields.")
 
-    conn.close()
+        # Load local CSS file for styling
+        def local_css(file_name):
+            with open(file_name) as f:
+                st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-if __name__ == "__main__":
+        local_css("style.css")  # Ensure 'style.css' is present in your project directory
+
+# Run the main function
+if __name__ == '__main__':
     main()

@@ -174,7 +174,7 @@ def main():
                 st.success("Logged In as {}".format(username))
                 st.session_state['logged_in'] = True  # Set session state for logged-in users
                 st.session_state['username'] = username  # Store the username
-                st.experimental_rerun()  # Refresh the app to show the Autism Diagnosis section
+                # No need to rerun the app here; the sidebar will automatically update
             else:
                 st.warning("Incorrect Username/Password")
 

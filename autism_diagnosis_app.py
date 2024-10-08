@@ -126,7 +126,7 @@ def main():
             "Intellectual Disability",
             "Social/Behavioral Issues",
             "Anxiety Disorder",
-            "Gender",
+            "Gender(Male=1/Female=0)",
             "Suffers from Jaundice",
             "Family History with ASD"
         ]

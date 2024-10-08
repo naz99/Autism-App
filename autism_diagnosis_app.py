@@ -126,20 +126,23 @@ def main():
             "Intellectual Disability",
             "Social/Behavioral Issues",
             "Anxiety Disorder",
-            "Gender(Male=1/Female=0)",
+            "Gender (Male=1/Female=0)",
             "Suffers from Jaundice",
             "Family History with ASD"
         ]
 
-        # Convert input_data values
+        # Convert input_data values, keeping gender unchanged
         input_data_converted = []
-        for value in input_data[0]:  # input_data is in a nested list
-            if value == 1:
-                input_data_converted.append("Yes")
-            elif value == 0:
-                input_data_converted.append("No")
+        for i, value in enumerate(input_data[0]):  # input_data is in a nested list
+            if labels[i] != "Gender (Male=1/Female=0)":
+                if value == 1:
+                    input_data_converted.append("Yes")
+                elif value == 0:
+                    input_data_converted.append("No")
+                else:
+                    input_data_converted.append(value)  # Keep other values (like age) unchanged
             else:
-                input_data_converted.append(value)  # Keep other values (like age) unchanged
+                input_data_converted.append(value)  # Keep gender unchanged
 
         # Create the PDF rows
         for label, value in zip(labels, input_data_converted):
@@ -224,49 +227,61 @@ def main():
         intellectual_disability = st.selectbox("Intellectual Disability", options=["Yes", "No"])
         social_behavioral_issues = st.selectbox("Social/Behavioral Issues", options=["Yes", "No"])
         anxiety_disorder = st.selectbox("Anxiety Disorder", options=["Yes", "No"])
-        gender = st.selectbox("Gender (Male=1/Female=0)", options=[1, 0])
+        gender = st.selectbox("Gender (Male=1/Female=0)", options=["Male", "Female"])
         jaundice = st.selectbox("Suffers from Jaundice", options=["Yes", "No"])
         family_history_asd = st.selectbox("Family History with ASD", options=["Yes", "No"])
 
-        # Prepare input data for model prediction
-        input_data = [[social_responsiveness, age, int(speech_delay == "Yes"), int(learning_disorder == "Yes"),
-                       int(genetic_disorders == "Yes"), int(depression == "Yes"), 
-                       int(intellectual_disability == "Yes"), int(social_behavioral_issues == "Yes"), 
-                       int(anxiety_disorder == "Yes"), gender, 
-                       int(jaundice == "Yes"), int(family_history_asd == "Yes")]]
-
         if st.button("Diagnose"):
+            # Prepare input data for prediction
+            input_data = [[
+                social_responsiveness,
+                age,
+                1 if speech_delay == "Yes" else 0,
+                1 if learning_disorder == "Yes" else 0,
+                1 if genetic_disorders == "Yes" else 0,
+                1 if depression == "Yes" else 0,
+                1 if intellectual_disability == "Yes" else 0,
+                1 if social_behavioral_issues == "Yes" else 0,
+                1 if anxiety_disorder == "Yes" else 0,
+                1 if gender == "Male" else 0,
+                1 if jaundice == "Yes" else 0,
+                1 if family_history_asd == "Yes" else 0
+            ]]
+
             # Scale input data
             input_data_scaled = scaler.transform(input_data)
-            # Predict
-            diagnosis_result = classifier.predict(input_data_scaled)
-            diagnosis_result_text = "Has Autism" if diagnosis_result[0] == 1 else "Does Not Have Autism"
+
+            # Make prediction
+            diagnosis = classifier.predict(input_data_scaled)
+
+            # Display result
+            result = "Positive" if diagnosis[0] == 1 else "Negative"
+            st.success(f"Diagnosis Result: {result}")
 
             # Generate PDF report
-            pdf_file_path = generate_pdf_result(st.session_state['username'], diagnosis_result_text, input_data)
+            pdf_path = generate_pdf_result(st.session_state['username'], result, input_data)
 
-            # Display results
-            st.success(diagnosis_result_text)
-            st.write("PDF report generated. Click the link below to download:")
-            st.download_button(label="Download Diagnosis Report", data=open(pdf_file_path, 'rb'), file_name='diagnosis_result.pdf')
+            # Provide link to download the PDF
+            with open(pdf_path, "rb") as f:
+                pdf_data = f.read()
+            st.download_button("Download Diagnosis Report", pdf_data, file_name=pdf_path)
 
     # Contact Us Section
     elif selected == "Contact Us":
         st.title("Contact Us")
-        name = st.text_input("Name")
-        email = st.text_input("Email")
-        message = st.text_area("Message")
+        name = st.text_input("Your Name")
+        email = st.text_input("Your Email")
+        message = st.text_area("Your Message")
         if st.button("Send"):
             send_email(name, email, message)
 
     # Logout Section
     elif selected == "Logout":
         st.session_state['logged_in'] = False
-        st.session_state.pop('username', None)
-        st.session_state.pop('go_to_diagnosis', None)
-        st.success("You have been logged out.")
+        st.session_state['go_to_diagnosis'] = False
+        st.success("Logged out successfully.")
 
-    conn.close()  # Close the database connection at the end
+    conn.close()  # Close database connection at the end
 
 if __name__ == "__main__":
     main()

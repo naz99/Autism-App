@@ -14,12 +14,12 @@ import os
 st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
 
 def main():
-    # Add custom CSS to change colors
+    # Add custom CSS to change the background color to #C3B1E1
     st.markdown(
         """
         <style>
         body {
-            background-color: #BCAFCF;  /* Change this color to your preference */
+            background-color: #C3B1E1;  /* Your preferred lilac color */
         }
         </style>
         """,
@@ -223,37 +223,35 @@ def main():
                            1 if gender == "Male" else 0,
                            1 if suffers_from_jaundice == "Yes" else 0,
                            1 if family_member_history_with_asd == "Yes" else 0]
+            
+            # Scale the input data
+            scaled_data = scaler.transform([input_data])
+            prediction = classifier.predict(scaled_data)
 
-            input_data = scaler.transform([input_data])  # Scale the input data
-            prediction = classifier.predict(input_data)[0]
-            result_message = "The result is: " + ("Autism Detected" if prediction == 1 else "No Autism Detected")
+            # Show prediction result
+            if prediction[0] == 1:
+                result_text = "The prediction indicates a higher likelihood of Autism Spectrum Disorder."
+            else:
+                result_text = "The prediction indicates a lower likelihood of Autism Spectrum Disorder."
 
-            # Display the result
-            st.success(result_message)
-
-            # Generate PDF report option
-            if st.button("Download Report"):
-                pdf_file_path = generate_pdf_result(result_message, input_data)
-                with open(pdf_file_path, "rb") as pdf_file:
-                    st.download_button("Download PDF", pdf_file, file_name="diagnosis_report.pdf")
+            st.success(result_text)
+            pdf_path = generate_pdf_result(result_text, input_data)
+            st.download_button("Download PDF Report", pdf_path)
 
     # Contact Us Section
     elif selected == "Contact Us":
         st.title(":envelope: Contact Us")
         name = st.text_input("Your Name")
         email = st.text_input("Your Email")
-        message = st.text_area("Message")
+        message = st.text_area("Your Message")
         if st.button("Send"):
             send_email(name, email, message)
 
     # Logout Section
-    if selected == "Logout":
+    elif selected == "Logout":
         st.session_state['logged_in'] = False
-        st.session_state.pop('username', None)  # Clear username from session state
+        st.session_state.pop('username', None)
         st.success("You have been logged out.")
 
-    # Close database connection
-    conn.close()
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -14,12 +14,9 @@ import os
 st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
 
 def main():
-    # Load custom CSS from a local file
+    # Add custom CSS from external file
     with open('styles.css') as f:
-        custom_css = f.read()
-    
-    # Add custom CSS to the Streamlit app
-    st.markdown(f"<style>{custom_css}</style>", unsafe_allow_html=True)
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
     # Load environment variables
     load_dotenv()
@@ -202,44 +199,69 @@ def main():
         intellectual_disability = st.radio("Intellectual Disability", ["No", "Yes"])
         social_behavioral_issues = st.radio("Social/Behavioral Issues", ["No", "Yes"])
         anxiety_disorder = st.radio("Anxiety Disorder", ["No", "Yes"])
-        gender = st.selectbox("Gender", ["Male", "Female"])
+        gender = st.selectbox("Gender", ["Female", "Male"])
+        suffers_from_jaundice = st.radio("Suffers from Jaundice", ["No", "Yes"])
+        family_member_history_with_asd = st.radio("Family member history with ASD", ["No", "Yes"])
 
-        # Prepare input for prediction
-        features = [[social_responsiveness, age, int(speech_delay == "Yes"), int(learning_disorder == "Yes"),
-                     int(genetic_disorders == "Yes"), int(depression == "Yes"), int(intellectual_disability == "Yes"),
-                     int(social_behavioral_issues == "Yes"), int(anxiety_disorder == "Yes"), int(gender == "Male")]]
+        if st.button("Diagnose"):
+            # Prepare input data for prediction
+            input_data = [social_responsiveness, age, 1 if speech_delay == "Yes" else 0,
+                           1 if learning_disorder == "Yes" else 0,
+                           1 if genetic_disorders == "Yes" else 0,
+                           1 if depression == "Yes" else 0,
+                           1 if intellectual_disability == "Yes" else 0,
+                           1 if social_behavioral_issues == "Yes" else 0,
+                           1 if anxiety_disorder == "Yes" else 0,
+                           1 if gender == "Male" else 0,
+                           1 if suffers_from_jaundice == "Yes" else 0,
+                           1 if family_member_history_with_asd == "Yes" else 0]
 
-        if st.button("Predict"):
-            # Scale input
-            features_scaled = scaler.transform(features)
-            prediction = classifier.predict(features_scaled)
+            input_data = scaler.transform([input_data])  # Scale input data
+            prediction = classifier.predict(input_data)
 
-            # Output prediction
-            diagnosis = "Likely Autism" if prediction[0] == 1 else "Not Likely Autism"
-            st.success(f"The prediction is: **{diagnosis}**")
+            # Show results
+            if prediction[0] == 1:
+                result = "Positive for Autism Spectrum Disorder"
+            else:
+                result = "Negative for Autism Spectrum Disorder"
 
-            # Generate PDF report
-            if st.button("Generate PDF Report"):
-                pdf_path = generate_pdf_result(diagnosis, features)
-                st.success(f"PDF report generated: [Download here]({pdf_path})")
+            # Generate and download PDF report
+            details = [
+                f"Social Responsiveness: {social_responsiveness}",
+                f"Age: {age}",
+                f"Speech Delay: {speech_delay}",
+                f"Learning Disorder: {learning_disorder}",
+                f"Genetic Disorders: {genetic_disorders}",
+                f"Depression: {depression}",
+                f"Intellectual Disability: {intellectual_disability}",
+                f"Social/Behavioral Issues: {social_behavioral_issues}",
+                f"Anxiety Disorder: {anxiety_disorder}",
+                f"Gender: {gender}",
+                f"Suffers from Jaundice: {suffers_from_jaundice}",
+                f"Family Member History with ASD: {family_member_history_with_asd}",
+                f"Diagnosis Result: {result}"
+            ]
+
+            pdf_file_path = generate_pdf_result(result, details)
+            with open(pdf_file_path, "rb") as pdf_file:
+                st.download_button("Download Diagnosis Result", pdf_file, file_name=pdf_file_path)
 
     # Contact Us Section
     elif selected == "Contact Us":
-        st.title(":envelope: :blue[Contact Us]")
+        st.title("Contact Us")
         name = st.text_input("Name")
         email = st.text_input("Email")
         message = st.text_area("Message")
-        if st.button("Send"):
+        if st.button("Send Message"):
             send_email(name, email, message)
 
-    # Logout section
-    if selected == "Logout":
+    # Logout Section
+    elif selected == "Logout":
         st.session_state['logged_in'] = False
-        st.session_state.pop('username', None)  # Clear username from session state
+        st.session_state['username'] = None
         st.success("You have been logged out.")
 
-    # Close database connection
-    conn.close()
+    conn.close()  # Close database connection
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -173,7 +173,8 @@ def main():
                 # Add button to go to Autism Diagnosis
                 if st.button("Go to Autism Diagnosis"):
                     st.session_state['go_to_diagnosis'] = True
-                    st.experimental_rerun()  # Refresh the app to show the Autism Diagnosis section
+                    # Use query parameters to trigger a change in the URL to refresh the app state
+                    st.experimental_set_query_params(diagnosis=True)
             else:
                 st.warning("Incorrect Username/Password")
 
@@ -207,16 +208,15 @@ def main():
                            1 if intellectual_disability == "Yes" else 0,
                            1 if social_behavioral_issues == "Yes" else 0,
                            1 if anxiety_disorder == "Yes" else 0,
-                           1 if gender == "Female" else 0,
+                           1 if gender == "Male" else 0,
                            1 if suffers_from_jaundice == "Yes" else 0,
                            1 if family_member_history_with_asd == "Yes" else 0]
 
-            # Make prediction
-            prediction = classifier.predict(scaler.transform([input_data]))
-            diagnosis = ["Autism" if pred == 1 else "No Autism" for pred in prediction]
-            result = diagnosis[0]
+            input_data_scaled = scaler.transform([input_data])
 
-            # Display result
+            # Make prediction using the loaded model
+            prediction = classifier.predict(input_data_scaled)
+            result = "Autistic" if prediction[0] == 1 else "Not Autistic"
             st.success(f"Diagnosis Result: {result}")
 
             # Generate PDF report and offer download
@@ -237,20 +237,15 @@ def main():
 
     # Logout Section
     elif selected == "Logout":
-        # Logout section updated with the `logged_out` flag
+        # Logout section updated with session state handling
         if 'logged_in' in st.session_state:
             st.session_state['logged_in'] = False
             st.session_state.pop('username', None)  # Remove username from session state
             st.session_state.pop('go_to_diagnosis', None)  # Clear the go_to_diagnosis state if it exists
             st.success("You have successfully logged out.")
 
-            # Set a temporary flag for rerunning
-            st.session_state['logged_out'] = True
-
-        # Perform rerun only if the logged_out flag is set
-        if st.session_state.get('logged_out'):
-            st.session_state.pop('logged_out', None)  # Remove the logged_out flag to avoid repeated reruns
-            st.experimental_rerun()  # Refresh the app after logout
+            # Use query parameters to simulate a refresh and clear the current state
+            st.experimental_set_query_params(logout=True)
 
     # Close database connection when done
     conn.close()

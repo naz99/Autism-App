@@ -215,27 +215,33 @@ def main():
             input_data = scaler.transform([input_data])  # Scale the input data
             prediction = classifier.predict(input_data)  # Make prediction
 
+            # Display the result of the diagnosis
+            diagnosis_result = "Has Autism" if prediction[0] == 1 else "Does Not Have Autism"
+            st.success(f"Diagnosis Result: {diagnosis_result}")
+
             # Generate PDF report
-            pdf_path = generate_pdf_result(prediction[0], input_data)
-            st.success("Diagnosis complete.")
+            pdf_path = generate_pdf_result(diagnosis_result, input_data)
             st.markdown(f"[Download PDF Report]({pdf_path})")
 
     # Contact Us Section
     elif selected == "Contact Us":
-        st.title(":envelope: :blue[Contact Us]")
-        contact_name = st.text_input("Your Name")
-        contact_email = st.text_input("Your Email")
-        contact_message = st.text_area("Your Message")
+        st.title(":mailbox_with_mail: :blue[Contact Us]")
+        name = st.text_input("Name")
+        email = st.text_input("Email")
+        message = st.text_area("Message")
         if st.button("Send"):
-            send_email(contact_name, contact_email, contact_message)
+            if name and email and message:
+                send_email(name, email, message)
+            else:
+                st.error("Please fill in all fields.")
 
     # Logout Section
-    elif selected == "Logout":
+    if selected == "Logout":
         st.session_state['logged_in'] = False
-        st.session_state.pop('username', None)  # Remove username from session state
-        st.experimental_rerun()  # Rerun the app to reflect logout
+        st.session_state['go_to_diagnosis'] = False
+        st.experimental_rerun()  # Refresh the app
 
-    conn.close()  # Close the database connection when done
+    conn.close()  # Close the database connection
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

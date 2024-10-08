@@ -14,10 +14,6 @@ import os
 st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
 
 def main():
-    # Add custom CSS from external file
-    with open('styles.css') as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
     # Load environment variables
     load_dotenv()
     EMAIL_USER = os.getenv("EMAIL_USER")
@@ -127,12 +123,13 @@ def main():
         return pdf_file_path
 
     # Sidebar navigation
+    st.sidebar.title("Navigation")
     menu = ["Home", "Signup", "Login", "Contact Us"]
     if 'logged_in' in st.session_state and st.session_state['logged_in']:
         menu.append("Autism Diagnosis")
         menu.append("Logout")  # Add logout option to the menu
 
-    selected = st.sidebar.radio("Navigation", menu)
+    selected = st.sidebar.selectbox("Select Page", menu)  # Sidebar dropdown for navigation
 
     conn = init_db_connection()
     if conn is None:
@@ -215,53 +212,30 @@ def main():
                            1 if gender == "Male" else 0,
                            1 if suffers_from_jaundice == "Yes" else 0,
                            1 if family_member_history_with_asd == "Yes" else 0]
+            input_data = scaler.transform([input_data])  # Scale the input data
+            prediction = classifier.predict(input_data)  # Make prediction
 
-            input_data = scaler.transform([input_data])  # Scale input data
-            prediction = classifier.predict(input_data)
-
-            # Show results
-            if prediction[0] == 1:
-                result = "Positive for Autism Spectrum Disorder"
-            else:
-                result = "Negative for Autism Spectrum Disorder"
-
-            # Generate and download PDF report
-            details = [
-                f"Social Responsiveness: {social_responsiveness}",
-                f"Age: {age}",
-                f"Speech Delay: {speech_delay}",
-                f"Learning Disorder: {learning_disorder}",
-                f"Genetic Disorders: {genetic_disorders}",
-                f"Depression: {depression}",
-                f"Intellectual Disability: {intellectual_disability}",
-                f"Social/Behavioral Issues: {social_behavioral_issues}",
-                f"Anxiety Disorder: {anxiety_disorder}",
-                f"Gender: {gender}",
-                f"Suffers from Jaundice: {suffers_from_jaundice}",
-                f"Family Member History with ASD: {family_member_history_with_asd}",
-                f"Diagnosis Result: {result}"
-            ]
-
-            pdf_file_path = generate_pdf_result(result, details)
-            with open(pdf_file_path, "rb") as pdf_file:
-                st.download_button("Download Diagnosis Result", pdf_file, file_name=pdf_file_path)
+            # Generate PDF report
+            pdf_path = generate_pdf_result(prediction[0], input_data)
+            st.success("Diagnosis complete.")
+            st.markdown(f"[Download PDF Report]({pdf_path})")
 
     # Contact Us Section
     elif selected == "Contact Us":
-        st.title("Contact Us")
-        name = st.text_input("Name")
-        email = st.text_input("Email")
-        message = st.text_area("Message")
-        if st.button("Send Message"):
-            send_email(name, email, message)
+        st.title(":envelope: :blue[Contact Us]")
+        contact_name = st.text_input("Your Name")
+        contact_email = st.text_input("Your Email")
+        contact_message = st.text_area("Your Message")
+        if st.button("Send"):
+            send_email(contact_name, contact_email, contact_message)
 
     # Logout Section
     elif selected == "Logout":
         st.session_state['logged_in'] = False
-        st.session_state['username'] = None
-        st.success("You have been logged out.")
+        st.session_state.pop('username', None)  # Remove username from session state
+        st.experimental_rerun()  # Rerun the app to reflect logout
 
-    conn.close()  # Close database connection
+    conn.close()  # Close the database connection when done
 
 if __name__ == '__main__':
     main()

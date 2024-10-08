@@ -237,13 +237,24 @@ def main():
             else:
                 st.error("Please fill in all fields.")
 
-    elif selected == "Logout":
+    # Your existing code above this remains unchanged...
+
+elif selected == "Logout":
+    # Check if the user is logged in before logging out
+    if 'logged_in' in st.session_state:
         st.session_state['logged_in'] = False
         st.session_state.pop('username', None)  # Remove username from session state
-        st.success("You have successfully logged out.")
-        # Redirect to login page or home
         st.session_state.pop('go_to_diagnosis', None)  # Clear the go_to_diagnosis state if it exists
+        st.success("You have successfully logged out.")
+
+        # Set a temporary flag for rerunning
+        st.session_state['logged_out'] = True
+
+    # Perform rerun only if the logged_out flag is set
+    if st.session_state.get('logged_out'):
+        st.session_state.pop('logged_out', None)  # Remove the logged_out flag to avoid repeated reruns
         st.experimental_rerun()  # Refresh the app after logout
+
 
     conn.close()  # Close the database connection when done
 

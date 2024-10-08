@@ -19,15 +19,7 @@ def main():
         """
         <style>
         body {
-            background-color: #f0f8ff;  /* Light blue background */
-            color: #333;  /* Dark gray text */
-        }
-        .stButton {
-            background-color: #007BFF;  /* Blue buttons */
-            color: white;  /* White text on buttons */
-        }
-        .stButton:hover {
-            background-color: #0056b3;  /* Darker blue on hover */
+            background-color: #f0f8ff;  /* Change this color to your preference */
         }
         </style>
         """,

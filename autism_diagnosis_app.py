@@ -19,7 +19,7 @@ def main():
         """
         <style>
         body {
-            background-color: #C3B1E1;  
+            background-color: #E0ABED;  
         }
         </style>
         """,

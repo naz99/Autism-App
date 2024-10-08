@@ -131,8 +131,19 @@ def main():
             "Family History with ASD"
         ]
 
-        for label, value in zip(labels, input_data[0]):  # input_data is in a nested list
-            pdf.cell(200, 10, txt=f"{label}: {value}", ln=True)
+        # Convert input_data values
+    input_data_converted = []
+    for value in input_data[0]:  # input_data is in a nested list
+        if value == 1:
+            input_data_converted.append("Yes")
+        elif value == 0:
+            input_data_converted.append("No")
+        else:
+            input_data_converted.append(value)  # Keep other values (like age) unchanged
+
+    # Create the PDF rows
+    for label, value in zip(labels, input_data_converted):
+        pdf.cell(200, 10, txt=f"{label}: {value}", ln=True)
 
         pdf_file_path = "diagnosis_result.pdf"
         pdf.output(pdf_file_path)

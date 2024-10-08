@@ -115,7 +115,7 @@ def main():
         pdf.cell(200, 10, txt=f"Diagnosis: {diagnosis_result}", ln=True)
         pdf.cell(200, 10, txt="Input Data Results:", ln=True)
 
-        # Add input data with labels
+        # Add input data with labels and convert 1/0 to Yes/No accordingly
         labels = [
             "Social Responsiveness",
             "Age",
@@ -132,18 +132,18 @@ def main():
         ]
 
         # Convert input_data values
-    input_data_converted = []
-    for value in input_data[0]:  # input_data is in a nested list
-        if value == 1:
-            input_data_converted.append("Yes")
-        elif value == 0:
-            input_data_converted.append("No")
-        else:
-            input_data_converted.append(value)  # Keep other values (like age) unchanged
+        input_data_converted = []
+        for value in input_data[0]:  # input_data is in a nested list
+            if value == 1:
+                input_data_converted.append("Yes")
+            elif value == 0:
+                input_data_converted.append("No")
+            else:
+                input_data_converted.append(value)  # Keep other values (like age) unchanged
 
-    # Create the PDF rows
-    for label, value in zip(labels, input_data_converted):
-        pdf.cell(200, 10, txt=f"{label}: {value}", ln=True)
+        # Create the PDF rows
+        for label, value in zip(labels, input_data_converted):
+            pdf.cell(200, 10, txt=f"{label}: {value}", ln=True)
 
         pdf_file_path = "diagnosis_result.pdf"
         pdf.output(pdf_file_path)
@@ -224,42 +224,35 @@ def main():
         intellectual_disability = st.selectbox("Intellectual Disability", options=["Yes", "No"])
         social_behavioral_issues = st.selectbox("Social/Behavioral Issues", options=["Yes", "No"])
         anxiety_disorder = st.selectbox("Anxiety Disorder", options=["Yes", "No"])
-        gender = st.selectbox("Gender", options=["Male", "Female"])
-        suffers_from_jaundice = st.selectbox("Suffers from Jaundice", options=["Yes", "No"])
-        family_member_history_with_asd = st.selectbox("Family Member History with ASD", options=["Yes", "No"])
+        gender = st.selectbox("Gender (Male=1/Female=0)", options=[1, 0])
+        jaundice = st.selectbox("Suffers from Jaundice", options=["Yes", "No"])
+        family_history_asd = st.selectbox("Family History with ASD", options=["Yes", "No"])
+
+        # Prepare input data for model prediction
+        input_data = [[social_responsiveness, age, int(speech_delay == "Yes"), int(learning_disorder == "Yes"),
+                       int(genetic_disorders == "Yes"), int(depression == "Yes"), 
+                       int(intellectual_disability == "Yes"), int(social_behavioral_issues == "Yes"), 
+                       int(anxiety_disorder == "Yes"), gender, 
+                       int(jaundice == "Yes"), int(family_history_asd == "Yes")]]
 
         if st.button("Diagnose"):
-            input_data = [
-                social_responsiveness,
-                age,
-                1 if speech_delay == "Yes" else 0,
-                1 if learning_disorder == "Yes" else 0,
-                1 if genetic_disorders == "Yes" else 0,
-                1 if depression == "Yes" else 0,
-                1 if intellectual_disability == "Yes" else 0,
-                1 if social_behavioral_issues == "Yes" else 0,
-                1 if anxiety_disorder == "Yes" else 0,
-                1 if gender == "Male" else 0,
-                1 if suffers_from_jaundice == "Yes" else 0,
-                1 if family_member_history_with_asd == "Yes" else 0
-            ]
-
-            input_data_scaled = scaler.transform([input_data])  # Scale the input data
-
-            # Prediction
+            # Scale input data
+            input_data_scaled = scaler.transform(input_data)
+            # Predict
             diagnosis_result = classifier.predict(input_data_scaled)
-            diagnosis = "Positive" if diagnosis_result[0] == 1 else "Negative"
+            diagnosis_result_text = "Has Autism" if diagnosis_result[0] == 1 else "Does Not Have Autism"
 
-            # Show result
-            st.success(f"Diagnosis Result: {diagnosis}")
+            # Generate PDF report
+            pdf_file_path = generate_pdf_result(st.session_state['username'], diagnosis_result_text, input_data)
 
-            # Generate and provide a download link for the PDF report
-            pdf_file_path = generate_pdf_result(st.session_state['username'], diagnosis, [input_data])
-            st.download_button(label="Download Diagnosis Report", data=open(pdf_file_path, "rb"), file_name="diagnosis_result.pdf")
+            # Display results
+            st.success(diagnosis_result_text)
+            st.write("PDF report generated. Click the link below to download:")
+            st.download_button(label="Download Diagnosis Report", data=open(pdf_file_path, 'rb'), file_name='diagnosis_result.pdf')
 
     # Contact Us Section
     elif selected == "Contact Us":
-        st.title(":envelope: Contact Us")
+        st.title("Contact Us")
         name = st.text_input("Name")
         email = st.text_input("Email")
         message = st.text_area("Message")
@@ -268,17 +261,12 @@ def main():
 
     # Logout Section
     elif selected == "Logout":
-        # Logout section updated with session state handling
-        if 'logged_in' in st.session_state:
-            st.session_state['logged_in'] = False
-            st.session_state.pop('username', None)  # Remove username from session state
-            st.session_state.pop('go_to_diagnosis', None)  # Clear the go_to_diagnosis state if it exists
-            st.success("You have successfully logged out.")
+        st.session_state['logged_in'] = False
+        st.session_state.pop('username', None)
+        st.session_state.pop('go_to_diagnosis', None)
+        st.success("You have been logged out.")
 
-            # Use query parameters to simulate a refresh and clear the current state
-            st.experimental_set_query_params(logout=True)
-
-    conn.close()  # Close database connection
+    conn.close()  # Close the database connection at the end
 
 if __name__ == "__main__":
     main()

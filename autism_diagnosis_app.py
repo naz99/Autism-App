@@ -126,7 +126,7 @@ def main():
             "Intellectual Disability",
             "Social/Behavioral Issues",
             "Anxiety Disorder",
-            "Gender (Male=1/Female=0)",
+            "Gender",
             "Suffers from Jaundice",
             "Family History with ASD"
         ]
@@ -224,7 +224,7 @@ def main():
         intellectual_disability = st.selectbox("Intellectual Disability", options=["Yes", "No"])
         social_behavioral_issues = st.selectbox("Social/Behavioral Issues", options=["Yes", "No"])
         anxiety_disorder = st.selectbox("Anxiety Disorder", options=["Yes", "No"])
-        gender = st.selectbox("Gender (Male=1/Female=0)", options=[1, 0])
+        gender = st.selectbox("Gender", options=["Female, Male"])
         jaundice = st.selectbox("Suffers from Jaundice", options=["Yes", "No"])
         family_history_asd = st.selectbox("Family History with ASD", options=["Yes", "No"])
 

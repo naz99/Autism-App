@@ -14,17 +14,12 @@ import os
 st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
 
 def main():
-    # Add custom CSS to change the background color to #C3B1E1
-    st.markdown(
-        """
-        <style>
-        body {
-            background-color: #E0ABED;  
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+    # Load custom CSS from a local file
+    with open('styles.css') as f:
+        custom_css = f.read()
+    
+    # Add custom CSS to the Streamlit app
+    st.markdown(f"<style>{custom_css}</style>", unsafe_allow_html=True)
 
     # Load environment variables
     load_dotenv()
@@ -207,51 +202,44 @@ def main():
         intellectual_disability = st.radio("Intellectual Disability", ["No", "Yes"])
         social_behavioral_issues = st.radio("Social/Behavioral Issues", ["No", "Yes"])
         anxiety_disorder = st.radio("Anxiety Disorder", ["No", "Yes"])
-        gender = st.selectbox("Gender", ["Female", "Male"])
-        suffers_from_jaundice = st.radio("Suffers from Jaundice", ["No", "Yes"])
-        family_member_history_with_asd = st.radio("Family member history with ASD", ["No", "Yes"])
+        gender = st.selectbox("Gender", ["Male", "Female"])
 
-        if st.button("Diagnose"):
-            # Prepare input data for prediction
-            input_data = [social_responsiveness, age, 1 if speech_delay == "Yes" else 0,
-                           1 if learning_disorder == "Yes" else 0,
-                           1 if genetic_disorders == "Yes" else 0,
-                           1 if depression == "Yes" else 0,
-                           1 if intellectual_disability == "Yes" else 0,
-                           1 if social_behavioral_issues == "Yes" else 0,
-                           1 if anxiety_disorder == "Yes" else 0,
-                           1 if gender == "Male" else 0,
-                           1 if suffers_from_jaundice == "Yes" else 0,
-                           1 if family_member_history_with_asd == "Yes" else 0]
-            
-            # Scale the input data
-            scaled_data = scaler.transform([input_data])
-            prediction = classifier.predict(scaled_data)
+        # Prepare input for prediction
+        features = [[social_responsiveness, age, int(speech_delay == "Yes"), int(learning_disorder == "Yes"),
+                     int(genetic_disorders == "Yes"), int(depression == "Yes"), int(intellectual_disability == "Yes"),
+                     int(social_behavioral_issues == "Yes"), int(anxiety_disorder == "Yes"), int(gender == "Male")]]
 
-            # Show prediction result
-            if prediction[0] == 1:
-                result_text = "The prediction indicates a higher likelihood of Autism Spectrum Disorder."
-            else:
-                result_text = "The prediction indicates a lower likelihood of Autism Spectrum Disorder."
+        if st.button("Predict"):
+            # Scale input
+            features_scaled = scaler.transform(features)
+            prediction = classifier.predict(features_scaled)
 
-            st.success(result_text)
-            pdf_path = generate_pdf_result(result_text, input_data)
-            st.download_button("Download PDF Report", pdf_path)
+            # Output prediction
+            diagnosis = "Likely Autism" if prediction[0] == 1 else "Not Likely Autism"
+            st.success(f"The prediction is: **{diagnosis}**")
+
+            # Generate PDF report
+            if st.button("Generate PDF Report"):
+                pdf_path = generate_pdf_result(diagnosis, features)
+                st.success(f"PDF report generated: [Download here]({pdf_path})")
 
     # Contact Us Section
     elif selected == "Contact Us":
-        st.title(":envelope: Contact Us")
-        name = st.text_input("Your Name")
-        email = st.text_input("Your Email")
-        message = st.text_area("Your Message")
+        st.title(":envelope: :blue[Contact Us]")
+        name = st.text_input("Name")
+        email = st.text_input("Email")
+        message = st.text_area("Message")
         if st.button("Send"):
             send_email(name, email, message)
 
-    # Logout Section
-    elif selected == "Logout":
+    # Logout section
+    if selected == "Logout":
         st.session_state['logged_in'] = False
-        st.session_state.pop('username', None)
+        st.session_state.pop('username', None)  # Clear username from session state
         st.success("You have been logged out.")
 
-if __name__ == '__main__':
+    # Close database connection
+    conn.close()
+
+if __name__ == "__main__":
     main()

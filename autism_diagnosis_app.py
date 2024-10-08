@@ -122,13 +122,13 @@ def main():
 
         return pdf_file_path
 
-    # Sidebar navigation
+    # Sidebar navigation with a dropdown menu
     menu = ["Home", "Signup", "Login", "Contact Us"]
     if 'logged_in' in st.session_state and st.session_state['logged_in']:
         menu.append("Autism Diagnosis")
         menu.append("Logout")  # Add logout option to the menu
 
-    selected = st.sidebar.radio("Navigation", menu)
+    selected = st.selectbox("Navigation", menu)  # Dropdown menu for navigation
 
     conn = init_db_connection()
     if conn is None:
@@ -212,43 +212,30 @@ def main():
                            1 if suffers_from_jaundice == "Yes" else 0,
                            1 if family_member_history_with_asd == "Yes" else 0]
 
-            input_data_scaled = scaler.transform([input_data])
+            input_data = scaler.transform([input_data])  # Scale the input data
+            prediction = classifier.predict(input_data)  # Make prediction
 
-            # Make prediction using the loaded model
-            prediction = classifier.predict(input_data_scaled)
-            result = "Autistic" if prediction[0] == 1 else "Not Autistic"
-            st.success(f"Diagnosis Result: {result}")
-
-            # Generate PDF report and offer download
-            pdf_file_path = generate_pdf_result(result, input_data)
-            with open(pdf_file_path, "rb") as pdf_file:
-                st.download_button("Download Report", pdf_file, file_name=pdf_file_path)
+            # Generate PDF report
+            pdf_path = generate_pdf_result(prediction[0], input_data)
+            st.success("Diagnosis complete.")
+            st.markdown(f"[Download PDF Report]({pdf_path})")
 
     # Contact Us Section
     elif selected == "Contact Us":
-        st.title(":mailbox_with_mail: Contact Us")
-
-        name = st.text_input("Name")
-        email = st.text_input("Email")
-        message = st.text_area("Message")
-
-        if st.button("Submit"):
-            send_email(name, email, message)
+        st.title(":envelope: :blue[Contact Us]")
+        contact_name = st.text_input("Your Name")
+        contact_email = st.text_input("Your Email")
+        contact_message = st.text_area("Your Message")
+        if st.button("Send"):
+            send_email(contact_name, contact_email, contact_message)
 
     # Logout Section
     elif selected == "Logout":
-        # Logout section updated with session state handling
-        if 'logged_in' in st.session_state:
-            st.session_state['logged_in'] = False
-            st.session_state.pop('username', None)  # Remove username from session state
-            st.session_state.pop('go_to_diagnosis', None)  # Clear the go_to_diagnosis state if it exists
-            st.success("You have successfully logged out.")
+        st.session_state['logged_in'] = False
+        st.session_state.pop('username', None)  # Remove username from session state
+        st.experimental_rerun()  # Rerun the app to reflect logout
 
-            # Use query parameters to simulate a refresh and clear the current state
-            st.experimental_set_query_params(logout=True)
-
-    # Close database connection when done
-    conn.close()
+    conn.close()  # Close the database connection when done
 
 if __name__ == '__main__':
     main()

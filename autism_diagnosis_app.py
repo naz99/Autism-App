@@ -201,27 +201,37 @@ def main():
         family_member_history_with_asd = st.radio("Family member history with ASD", ["No", "Yes"])
 
         if st.button("Diagnose"):
-            # Prepare input data for prediction
-            input_data = [social_responsiveness, age, 1 if speech_delay == "Yes" else 0,
-                           1 if learning_disorder == "Yes" else 0,
-                           1 if genetic_disorders == "Yes" else 0,
-                           1 if depression == "Yes" else 0,
-                           1 if intellectual_disability == "Yes" else 0,
-                           1 if social_behavioral_issues == "Yes" else 0,
-                           1 if anxiety_disorder == "Yes" else 0,
-                           1 if gender == "Male" else 0,
-                           1 if suffers_from_jaundice == "Yes" else 0,
-                           1 if family_member_history_with_asd == "Yes" else 0]
-            input_data = scaler.transform([input_data])  # Scale the input data
-            prediction = classifier.predict(input_data)  # Make prediction
+    # Prepare input data for prediction
+    input_data = [social_responsiveness, age, 1 if speech_delay == "Yes" else 0,
+                   1 if learning_disorder == "Yes" else 0,
+                   1 if genetic_disorders == "Yes" else 0,
+                   1 if depression == "Yes" else 0,
+                   1 if intellectual_disability == "Yes" else 0,
+                   1 if social_behavioral_issues == "Yes" else 0,
+                   1 if anxiety_disorder == "Yes" else 0,
+                   1 if gender == "Male" else 0,
+                   1 if suffers_from_jaundice == "Yes" else 0,
+                   1 if family_member_history_with_asd == "Yes" else 0]
+    input_data = scaler.transform([input_data])  # Scale the input data
+    prediction = classifier.predict(input_data)  # Make prediction
 
-            # Display the result of the diagnosis
-            diagnosis_result = "Has Autism" if prediction[0] == 1 else "Does Not Have Autism"
-            st.success(f"Diagnosis Result: {diagnosis_result}")
+    # Display the result of the diagnosis
+    diagnosis_result = "Has Autism" if prediction[0] == 1 else "Does Not Have Autism"
+    st.success(f"Diagnosis Result: {diagnosis_result}")
 
-            # Generate PDF report
-            pdf_path = generate_pdf_result(diagnosis_result, input_data)
-            st.markdown(f"[Download PDF Report]({pdf_path})")
+    # Generate PDF report
+    pdf_path = generate_pdf_result(diagnosis_result, input_data)
+
+    # Provide the PDF for download
+    with open(pdf_path, "rb") as pdf_file:
+        PDFbyte = pdf_file.read()
+    st.download_button(
+        label="Download PDF Report",
+        data=PDFbyte,
+        file_name="diagnosis_result.pdf",
+        mime="application/pdf"
+    )
+
 
     # Contact Us Section
     elif selected == "Contact Us":

@@ -206,22 +206,18 @@ def main():
         # Input form for prediction
         social_responsiveness = st.slider("Social Responsiveness", min_value=0, max_value=10)
         age = st.slider("Age", min_value=0, max_value=18)
-        speech_delay = st.radio("Speech Delay", ["No", "Yes"])
-        learning_disorder = st.radio("Learning Disorder", ["No", "Yes"])
-        genetic_disorders = st.radio("Genetic Disorders", ["No", "Yes"])
-        depression = st.radio("Depression", ["No", "Yes"])
-        intellectual_disability = st.radio("Intellectual Disability", ["No", "Yes"])
-        social_behavioral_issues = st.radio("Social/Behavioral Issues", ["No", "Yes"])
-        anxiety_disorder = st.radio("Anxiety Disorder", ["No", "Yes"])
-        gender = st.selectbox("Gender", ["Female", "Male"])
-        suffers_from_jaundice = st.radio("Suffers from Jaundice", ["No", "Yes"])
-        family_member_history_with_asd = st.radio("Family member history with ASD", ["No", "Yes"])
-
-        # Collect patient name from user input
-        patient_name = st.text_input("Patient Name", "")
+        speech_delay = st.selectbox("Speech Delay", options=["Yes", "No"])
+        learning_disorder = st.selectbox("Learning Disorder", options=["Yes", "No"])
+        genetic_disorders = st.selectbox("Genetic Disorders", options=["Yes", "No"])
+        depression = st.selectbox("Depression", options=["Yes", "No"])
+        intellectual_disability = st.selectbox("Intellectual Disability", options=["Yes", "No"])
+        social_behavioral_issues = st.selectbox("Social/Behavioral Issues", options=["Yes", "No"])
+        anxiety_disorder = st.selectbox("Anxiety Disorder", options=["Yes", "No"])
+        gender = st.selectbox("Gender", options=["Male", "Female"])
+        suffers_from_jaundice = st.selectbox("Suffers from Jaundice", options=["Yes", "No"])
+        family_member_history_with_asd = st.selectbox("Family Member History with ASD", options=["Yes", "No"])
 
         if st.button("Diagnose"):
-            # Prepare input data for prediction
             input_data = [
                 social_responsiveness,
                 age,
@@ -237,45 +233,42 @@ def main():
                 1 if family_member_history_with_asd == "Yes" else 0
             ]
 
-            # Scale and predict
             input_data_scaled = scaler.transform([input_data])  # Scale the input data
-            prediction = classifier.predict(input_data_scaled)  # Make prediction
 
-            # Display the result of the diagnosis
-            diagnosis_result = "Has Autism" if prediction[0] == 1 else "Does Not Have Autism"
-            st.success(f"Diagnosis Result: {diagnosis_result}")
+            # Prediction
+            diagnosis_result = classifier.predict(input_data_scaled)
+            diagnosis = "Positive" if diagnosis_result[0] == 1 else "Negative"
 
-            # Generate PDF report with patient name
-            pdf_path = generate_pdf_result(patient_name, diagnosis_result, [input_data])
-            
-            # Provide the PDF for download
-            with open(pdf_path, "rb") as pdf_file:
-                PDFbyte = pdf_file.read()
-            st.download_button(
-                label="Download PDF Report",
-                data=PDFbyte,
-                file_name="diagnosis_result.pdf",
-                mime="application/pdf"
-            )
+            # Show result
+            st.success(f"Diagnosis Result: {diagnosis}")
+
+            # Generate and provide a download link for the PDF report
+            pdf_file_path = generate_pdf_result(st.session_state['username'], diagnosis, [input_data])
+            st.download_button(label="Download Diagnosis Report", data=open(pdf_file_path, "rb"), file_name="diagnosis_result.pdf")
 
     # Contact Us Section
     elif selected == "Contact Us":
         st.title(":envelope: Contact Us")
-        name = st.text_input("Your Name")
-        email = st.text_input("Your Email")
-        message = st.text_area("Your Message")
+        name = st.text_input("Name")
+        email = st.text_input("Email")
+        message = st.text_area("Message")
         if st.button("Send"):
             send_email(name, email, message)
 
     # Logout Section
     elif selected == "Logout":
-        st.session_state['logged_in'] = False
-        st.session_state.pop('username', None)
-        st.session_state.pop('go_to_diagnosis', None)
-        st.success("Logged out successfully!")
-        st.experimental_rerun()  # Rerun the app to reflect the logout status
+        # Clear session state
+        if 'logged_in' in st.session_state:
+            st.session_state['logged_in'] = False
+            st.session_state.pop('username', None)  # Remove username from session state
+            st.success("You have successfully logged out.")
 
-    conn.close()  # Close the database connection
+        # Redirect to Home page
+        st.experimental_set_query_params(logout=True)  # Use query parameters to simulate a refresh
+        st.session_state['go_to_diagnosis'] = False  # Reset diagnosis state
+        st.experimental_rerun()  # Rerun the script to refresh the app state
+
+    conn.close()  # Close database connection
 
 if __name__ == "__main__":
     main()

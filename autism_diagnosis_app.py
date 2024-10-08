@@ -202,16 +202,21 @@ def main():
 
         if st.button("Diagnose"):
     # Prepare input data for prediction
-    input_data = [social_responsiveness, age, 1 if speech_delay == "Yes" else 0,
-                   1 if learning_disorder == "Yes" else 0,
-                   1 if genetic_disorders == "Yes" else 0,
-                   1 if depression == "Yes" else 0,
-                   1 if intellectual_disability == "Yes" else 0,
-                   1 if social_behavioral_issues == "Yes" else 0,
-                   1 if anxiety_disorder == "Yes" else 0,
-                   1 if gender == "Male" else 0,
-                   1 if suffers_from_jaundice == "Yes" else 0,
-                   1 if family_member_history_with_asd == "Yes" else 0]
+    input_data = [
+        social_responsiveness,
+        age,
+        1 if speech_delay == "Yes" else 0,
+        1 if learning_disorder == "Yes" else 0,
+        1 if genetic_disorders == "Yes" else 0,
+        1 if depression == "Yes" else 0,
+        1 if intellectual_disability == "Yes" else 0,
+        1 if social_behavioral_issues == "Yes" else 0,
+        1 if anxiety_disorder == "Yes" else 0,
+        1 if gender == "Male" else 0,
+        1 if suffers_from_jaundice == "Yes" else 0,
+        1 if family_member_history_with_asd == "Yes" else 0
+    ]
+    
     input_data = scaler.transform([input_data])  # Scale the input data
     prediction = classifier.predict(input_data)  # Make prediction
 
@@ -231,6 +236,7 @@ def main():
         file_name="diagnosis_result.pdf",
         mime="application/pdf"
     )
+
 
 
     # Contact Us Section

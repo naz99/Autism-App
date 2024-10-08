@@ -115,14 +115,13 @@ def main():
         
         pdf.cell(200, 10, txt="Details:", ln=True)
         for detail in details:
-            pdf.cell(200, 10, txt=detail, ln=True)
+            pdf.cell(200, 10, txt=str(detail), ln=True)
 
         pdf_file_path = "diagnosis_result.pdf"
         pdf.output(pdf_file_path)
 
         return pdf_file_path
 
-    # Main application function
     # Sidebar navigation
     menu = ["Home", "Signup", "Login", "Contact Us"]
     if 'logged_in' in st.session_state and st.session_state['logged_in']:
@@ -137,8 +136,8 @@ def main():
 
     create_usertable(conn)  # Ensure the table is created at the start
 
+    # Home Section
     if selected == "Home":
-        # Home section content
         st.title(":blue[Autism Spectrum Disorder]")
         st.write("---")
         with st.container():
@@ -150,16 +149,16 @@ def main():
                 img1 = Image.open("asd_child.jpg")
                 st.image(img1, width=300)
 
+    # Signup Section
     elif selected == "Signup":
-        # Signup Section
         st.title(":iphone: :blue[Create New Account]")
         new_user = st.text_input("Username")
         new_password = st.text_input("Password", type='password')
         if st.button("Signup"):
             add_userdata(conn, new_user, make_hashes(new_password))
 
+    # Login Section
     elif selected == "Login":
-        # Login Section
         st.title(":calling: :blue[Login Section]")
         username = st.text_input("User Name")
         password = st.text_input("Password", type='password')
@@ -167,7 +166,7 @@ def main():
             hashed_pswd = make_hashes(password)
             result = login_user(conn, username, hashed_pswd)
             if result:
-                st.success("Logged In as {}".format(username))
+                st.success(f"Logged In as {username}")
                 st.session_state['logged_in'] = True  # Set session state for logged-in users
                 st.session_state['username'] = username  # Store the username
                 
@@ -178,8 +177,8 @@ def main():
             else:
                 st.warning("Incorrect Username/Password")
 
+    # Autism Diagnosis Section
     elif selected == "Autism Diagnosis" and (st.session_state['logged_in'] or st.session_state.get('go_to_diagnosis', False)):
-        # Autism Diagnosis Section
         st.title('Autism Diagnosis')
 
         # Load model and scaler
@@ -218,45 +217,43 @@ def main():
             result = diagnosis[0]
 
             # Display result
-            st.success(f"The diagnosis is: {result}")
+            st.success(f"Diagnosis Result: {result}")
 
-            # Generate PDF report
+            # Generate PDF report and offer download
             pdf_file_path = generate_pdf_result(result, input_data)
-            st.success("PDF report generated!")
-            st.download_button("Download PDF Report", pdf_file_path, "diagnosis_result.pdf")
+            with open(pdf_file_path, "rb") as pdf_file:
+                st.download_button("Download Report", pdf_file, file_name=pdf_file_path)
 
+    # Contact Us Section
     elif selected == "Contact Us":
-        # Contact Us Section
-        st.title("Contact Us")
+        st.title(":mailbox_with_mail: Contact Us")
+
         name = st.text_input("Name")
         email = st.text_input("Email")
         message = st.text_area("Message")
-        if st.button("Send"):
-            if name and email and message:
-                send_email(name, email, message)
-            else:
-                st.error("Please fill in all fields.")
 
-    # Your existing code above this remains unchanged...
+        if st.button("Submit"):
+            send_email(name, email, message)
 
-elif selected == "Logout":
-    # Check if the user is logged in before logging out
-    if 'logged_in' in st.session_state:
-        st.session_state['logged_in'] = False
-        st.session_state.pop('username', None)  # Remove username from session state
-        st.session_state.pop('go_to_diagnosis', None)  # Clear the go_to_diagnosis state if it exists
-        st.success("You have successfully logged out.")
+    # Logout Section
+    elif selected == "Logout":
+        # Logout section updated with the `logged_out` flag
+        if 'logged_in' in st.session_state:
+            st.session_state['logged_in'] = False
+            st.session_state.pop('username', None)  # Remove username from session state
+            st.session_state.pop('go_to_diagnosis', None)  # Clear the go_to_diagnosis state if it exists
+            st.success("You have successfully logged out.")
 
-        # Set a temporary flag for rerunning
-        st.session_state['logged_out'] = True
+            # Set a temporary flag for rerunning
+            st.session_state['logged_out'] = True
 
-    # Perform rerun only if the logged_out flag is set
-    if st.session_state.get('logged_out'):
-        st.session_state.pop('logged_out', None)  # Remove the logged_out flag to avoid repeated reruns
-        st.experimental_rerun()  # Refresh the app after logout
+        # Perform rerun only if the logged_out flag is set
+        if st.session_state.get('logged_out'):
+            st.session_state.pop('logged_out', None)  # Remove the logged_out flag to avoid repeated reruns
+            st.experimental_rerun()  # Refresh the app after logout
 
+    # Close database connection when done
+    conn.close()
 
-    conn.close()  # Close the database connection when done
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -257,16 +257,15 @@ def main():
 
     # Logout Section
     elif selected == "Logout":
-        # Clear session state
+        # Logout section updated with session state handling
         if 'logged_in' in st.session_state:
             st.session_state['logged_in'] = False
             st.session_state.pop('username', None)  # Remove username from session state
+            st.session_state.pop('go_to_diagnosis', None)  # Clear the go_to_diagnosis state if it exists
             st.success("You have successfully logged out.")
 
-        # Redirect to Home page
-        st.experimental_set_query_params(logout=True)  # Use query parameters to simulate a refresh
-        st.session_state['go_to_diagnosis'] = False  # Reset diagnosis state
-        st.experimental_rerun()  # Rerun the script to refresh the app state
+            # Use query parameters to simulate a refresh and clear the current state
+            st.experimental_set_query_params(logout=True)
 
     conn.close()  # Close database connection
 

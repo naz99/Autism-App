@@ -105,17 +105,34 @@ def main():
             st.error(f"An error occurred while sending the email: {e}")
 
     # Function to generate PDF report
-    def generate_pdf_result(result, details):
+    def generate_pdf_result(name, diagnosis_result, input_data):
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
 
         pdf.cell(200, 10, txt="Autism Diagnosis Result", ln=True, align='C')
-        pdf.cell(200, 10, txt=f"Diagnosis: {result}", ln=True)
-        
-        pdf.cell(200, 10, txt="Details:", ln=True)
-        for detail in details:
-            pdf.cell(200, 10, txt=str(detail), ln=True)
+        pdf.cell(200, 10, txt=f"Patient Name: {name}", ln=True)
+        pdf.cell(200, 10, txt=f"Diagnosis: {diagnosis_result}", ln=True)
+        pdf.cell(200, 10, txt="Input Data Results:", ln=True)
+
+        # Add input data with labels
+        labels = [
+            "Social Responsiveness",
+            "Age",
+            "Speech Delay",
+            "Learning Disorder",
+            "Genetic Disorders",
+            "Depression",
+            "Intellectual Disability",
+            "Social/Behavioral Issues",
+            "Anxiety Disorder",
+            "Gender (Male=1/Female=0)",
+            "Suffers from Jaundice",
+            "Family History with ASD"
+        ]
+
+        for label, value in zip(labels, input_data[0]):  # input_data is in a nested list
+            pdf.cell(200, 10, txt=f"{label}: {value}", ln=True)
 
         pdf_file_path = "diagnosis_result.pdf"
         pdf.output(pdf_file_path)
@@ -200,6 +217,9 @@ def main():
         suffers_from_jaundice = st.radio("Suffers from Jaundice", ["No", "Yes"])
         family_member_history_with_asd = st.radio("Family member history with ASD", ["No", "Yes"])
 
+        # Collect patient name from user input
+        patient_name = st.text_input("Patient Name", "")
+
         if st.button("Diagnose"):
             # Prepare input data for prediction
             input_data = [
@@ -216,17 +236,18 @@ def main():
                 1 if suffers_from_jaundice == "Yes" else 0,
                 1 if family_member_history_with_asd == "Yes" else 0
             ]
-            
-            input_data = scaler.transform([input_data])  # Scale the input data
-            prediction = classifier.predict(input_data)  # Make prediction
+
+            # Scale and predict
+            input_data_scaled = scaler.transform([input_data])  # Scale the input data
+            prediction = classifier.predict(input_data_scaled)  # Make prediction
 
             # Display the result of the diagnosis
             diagnosis_result = "Has Autism" if prediction[0] == 1 else "Does Not Have Autism"
             st.success(f"Diagnosis Result: {diagnosis_result}")
 
-            # Generate PDF report
-            pdf_path = generate_pdf_result(diagnosis_result, input_data)
-
+            # Generate PDF report with patient name
+            pdf_path = generate_pdf_result(patient_name, diagnosis_result, [input_data])
+            
             # Provide the PDF for download
             with open(pdf_path, "rb") as pdf_file:
                 PDFbyte = pdf_file.read()
@@ -239,21 +260,22 @@ def main():
 
     # Contact Us Section
     elif selected == "Contact Us":
-        st.title(":envelope: :blue[Contact Us]")
-        contact_name = st.text_input("Name")
-        contact_email = st.text_input("Email")
-        contact_message = st.text_area("Message")
-        if st.button("Submit"):
-            send_email(contact_name, contact_email, contact_message)
+        st.title(":envelope: Contact Us")
+        name = st.text_input("Your Name")
+        email = st.text_input("Your Email")
+        message = st.text_area("Your Message")
+        if st.button("Send"):
+            send_email(name, email, message)
 
-    # Logout functionality
-    if selected == "Logout":
+    # Logout Section
+    elif selected == "Logout":
         st.session_state['logged_in'] = False
-        st.session_state.pop('username', None)  # Remove username from session state
-        st.success("You have successfully logged out.")
+        st.session_state.pop('username', None)
+        st.session_state.pop('go_to_diagnosis', None)
+        st.success("Logged out successfully!")
+        st.experimental_rerun()  # Rerun the app to reflect the logout status
 
-    # Close the database connection
-    conn.close()
+    conn.close()  # Close the database connection
 
 if __name__ == "__main__":
     main()

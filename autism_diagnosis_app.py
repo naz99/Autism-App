@@ -122,13 +122,14 @@ def main():
 
         return pdf_file_path
 
-    # Sidebar navigation with a dropdown menu
+    # Sidebar navigation
+    st.sidebar.title("Navigation")
     menu = ["Home", "Signup", "Login", "Contact Us"]
     if 'logged_in' in st.session_state and st.session_state['logged_in']:
         menu.append("Autism Diagnosis")
         menu.append("Logout")  # Add logout option to the menu
 
-    selected = st.selectbox("Navigation", menu)  # Dropdown menu for navigation
+    selected = st.sidebar.selectbox("Select Page", menu)  # Sidebar dropdown for navigation
 
     conn = init_db_connection()
     if conn is None:
@@ -211,7 +212,6 @@ def main():
                            1 if gender == "Male" else 0,
                            1 if suffers_from_jaundice == "Yes" else 0,
                            1 if family_member_history_with_asd == "Yes" else 0]
-
             input_data = scaler.transform([input_data])  # Scale the input data
             prediction = classifier.predict(input_data)  # Make prediction
 

@@ -14,6 +14,26 @@ import os
 st.set_page_config(page_title="Autism Spectrum Disorder", page_icon=":tada:", layout="wide")
 
 def main():
+    # Add custom CSS to change colors
+    st.markdown(
+        """
+        <style>
+        body {
+            background-color: #f0f8ff;  /* Light blue background */
+            color: #333;  /* Dark gray text */
+        }
+        .stButton {
+            background-color: #007BFF;  /* Blue buttons */
+            color: white;  /* White text on buttons */
+        }
+        .stButton:hover {
+            background-color: #0056b3;  /* Darker blue on hover */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
     # Load environment variables
     load_dotenv()
     EMAIL_USER = os.getenv("EMAIL_USER")
@@ -123,13 +143,12 @@ def main():
         return pdf_file_path
 
     # Sidebar navigation
-    st.sidebar.title("Navigation")
     menu = ["Home", "Signup", "Login", "Contact Us"]
     if 'logged_in' in st.session_state and st.session_state['logged_in']:
         menu.append("Autism Diagnosis")
         menu.append("Logout")  # Add logout option to the menu
 
-    selected = st.sidebar.selectbox("Select Page", menu)  # Sidebar dropdown for navigation
+    selected = st.sidebar.radio("Navigation", menu)
 
     conn = init_db_connection()
     if conn is None:
@@ -212,30 +231,37 @@ def main():
                            1 if gender == "Male" else 0,
                            1 if suffers_from_jaundice == "Yes" else 0,
                            1 if family_member_history_with_asd == "Yes" else 0]
-            input_data = scaler.transform([input_data])  # Scale the input data
-            prediction = classifier.predict(input_data)  # Make prediction
 
-            # Generate PDF report
-            pdf_path = generate_pdf_result(prediction[0], input_data)
-            st.success("Diagnosis complete.")
-            st.markdown(f"[Download PDF Report]({pdf_path})")
+            input_data = scaler.transform([input_data])  # Scale the input data
+            prediction = classifier.predict(input_data)[0]
+            result_message = "The result is: " + ("Autism Detected" if prediction == 1 else "No Autism Detected")
+
+            # Display the result
+            st.success(result_message)
+
+            # Generate PDF report option
+            if st.button("Download Report"):
+                pdf_file_path = generate_pdf_result(result_message, input_data)
+                with open(pdf_file_path, "rb") as pdf_file:
+                    st.download_button("Download PDF", pdf_file, file_name="diagnosis_report.pdf")
 
     # Contact Us Section
     elif selected == "Contact Us":
-        st.title(":envelope: :blue[Contact Us]")
-        contact_name = st.text_input("Your Name")
-        contact_email = st.text_input("Your Email")
-        contact_message = st.text_area("Your Message")
+        st.title(":envelope: Contact Us")
+        name = st.text_input("Your Name")
+        email = st.text_input("Your Email")
+        message = st.text_area("Message")
         if st.button("Send"):
-            send_email(contact_name, contact_email, contact_message)
+            send_email(name, email, message)
 
     # Logout Section
-    elif selected == "Logout":
+    if selected == "Logout":
         st.session_state['logged_in'] = False
-        st.session_state.pop('username', None)  # Remove username from session state
-        st.experimental_rerun()  # Rerun the app to reflect logout
+        st.session_state.pop('username', None)  # Clear username from session state
+        st.success("You have been logged out.")
 
-    conn.close()  # Close the database connection when done
+    # Close database connection
+    conn.close()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

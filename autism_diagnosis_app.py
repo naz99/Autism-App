@@ -194,6 +194,7 @@ elif selected == "Signup":
     new_user = st.text_input("Username")
     new_password = st.text_input("Password", type='password')
     if st.button("Signup"):
+        # Assuming you have a function to add user data
         add_userdata(conn, new_user, make_hashes(new_password))
 
 

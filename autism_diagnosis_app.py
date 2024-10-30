@@ -235,7 +235,7 @@ def main():
                 st.write("")
 
                 img4 = Image.open("licensed-image.jpg")
-                st.image(img4, width=500)
+                st.image(img4, width=400)
 
     # Signup Section
     elif selected == "Signup":

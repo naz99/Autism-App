@@ -181,7 +181,7 @@ def main():
         """,
         unsafe_allow_html=True
     )
-        st.title(":blue[Autism Spectrum Disorder]")
+        st.title(":black[Autism Spectrum Disorder]")
         st.write("---")
         with st.container():
             col1, col2 = st.columns([3, 2])

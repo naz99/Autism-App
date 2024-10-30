@@ -249,6 +249,16 @@ def main():
 
     # Signup Section
     elif selected == "Signup":
+         st.markdown(
+         """
+        <style>
+        .stApp {
+            background-color: 	#C3B1E1;  /* Change this to your desired color */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
         st.title(":iphone: :blue[Create New Account]")
         new_user = st.text_input("Username")
         new_password = st.text_input("Password", type='password')

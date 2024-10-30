@@ -220,6 +220,9 @@ def main():
                 
                 st.write("")  # Add two line breaks for vertical space
                 st.write("")
+                st.write("")
+                st.write("")
+                st.write("")
                 
                 img2 = Image.open("autism.png")
                 st.image(img2, width=300)

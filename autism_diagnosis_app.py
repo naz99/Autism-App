@@ -178,7 +178,15 @@ def main():
                 st.title("What is Autism Spectrum Disorder?")
                 st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
 
-                st.title("Muhammad nazrul iskandar bin mohd nazarudin")
+                st.title("What Causes Autism Spectrum Disorder?")
+                st.write("The Autism Spectrum Disorder Foundation lists the following as possible causes of ASD:")
+
+                st.write("Genetics : Research suggests that ASD can be caused by a combination of genetic and environmental factors. Some genes have been identified as being associated with an increased risk for ASD, but no single gene has been proven to cause ASD.")
+
+                st.write("Environmental factors : Studies are currently underway to explore whether certain exposure to toxins during pregnancy or after birth can increase the risk for developing ASD.")
+
+                st.write("Brain differences : Differences in certain areas of the brain have been observed in people with ASD, compared to those without ASD. It is not yet known what causes these differences.")
+                
             with col2:
                 img1 = Image.open("asd_child.jpg")
                 st.image(img1, width=300)

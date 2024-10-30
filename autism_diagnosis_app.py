@@ -217,10 +217,10 @@ def main():
                 img1 = Image.open("asd_child.jpg")
                 st.image(img1, width=300)
 
-                 st.write("")  # Add a blank line to create vertical space
+                st.write("")  # Add a blank line to create vertical space
                 st.write("")  # You can add more for extra spacing
 
-                img2 = Image.open("causes-of-autism.jpg")  # Replace with your second image
+                img2 = Image.open("causes-of-autism.png")  # Replace with your second image
                 st.image(img2, width=300)
 
     # Signup Section

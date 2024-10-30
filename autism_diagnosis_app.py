@@ -170,6 +170,17 @@ def main():
 
     # Home Section
     if selected == "Home":
+        st.markdown(
+              """
+        <style>
+        .stApp {
+            background-color: #f0f8ff;  /* You can choose your own color */
+            color: #000000;  /* Text color to ensure readability */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    ) 
         st.title(":blue[Autism Spectrum Disorder]")
         st.write("---")
         with st.container():

@@ -213,6 +213,8 @@ def main():
                 st.title("Prevalence Autism in Malaysia")
 
                 st.write("The exact prevalence of Autism Spectrum Disorder (ASD) in Malaysia is not well-established due to a lack of nationwide studies and consistent diagnostic criteria. However, some studies have estimated that the prevalence of ASD in Malaysia is between 1 and 2 per 1000 children. According to to an Ministry of Health (MOH) study in 2005, which use modified checklist for Autism in Toddlers (M-CHAT) screener for ASD, the prevelance in Malaysia is between one and two per 1000 children aged 18 months to three years. The study also found that male children are four times more likely to get ASD than female children.")
+                st.title("World Autism Awareness Day")
+                st.write("World Autism Awareness Day is observed on April 2nd each year. Established by the United Nations in 2007, this day aims to raise awareness about autism spectrum disorder (ASD) and promote acceptance and inclusion of individuals with autism worldwide. The day encourages governments, organizations, and communities to take action to improve the lives of people with autism and their families.")
                 
             with col2:
                 img1 = Image.open("asd_child.jpg")
@@ -227,6 +229,13 @@ def main():
             
                 img3 = Image.open("autism.png")
                 st.image(img3, width=500)
+
+                st.write("")
+                st.write("")
+                st.write("")
+
+                img4 = Image.open("licensed-image.jpg")
+                st.image(img4, width=500)
 
     # Signup Section
     elif selected == "Signup":

@@ -181,7 +181,8 @@ def main():
         """,
         unsafe_allow_html=True
     )
-        st.title(":black[Autism Spectrum Disorder]")
+        st.markdown("<h1 style='color:black;'>Autism Spectrum Disorder</h1>", unsafe_allow_html=True)
+
         st.write("---")
         with st.container():
             col1, col2 = st.columns([3, 2])

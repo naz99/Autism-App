@@ -171,11 +171,11 @@ def main():
     # Home Section
     if selected == "Home":
 
-        st.markdown(
-         """
+       st.markdown(
+        """
         <style>
         .stApp {
-            background-color: 	#C3B1E1;  /* Change this to your desired color */
+            background-color: #C3B1E1;  /* Change this to your desired color */
         }
         </style>
         """,

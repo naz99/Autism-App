@@ -172,14 +172,10 @@ def main():
     if selected == "Home":
 
         st.markdown(
-          """
+         """
         <style>
         .stApp {
-            background-image: url('autismwallpaper.png');  /* Update this to your image path */
-            background-size: cover;  /* Cover the entire area */
-            background-position: center;  /* Center the image */
-            background-repeat: no-repeat;  /* Do not repeat the image */
-            height: 100vh;  /* Set the height to full viewport height */
+            background-color: #FFDDDD;  /* Change this to your desired color */
         }
         </style>
         """,

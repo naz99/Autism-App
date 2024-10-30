@@ -264,7 +264,7 @@ def main():
         """
         <style>
         .stApp {
-            background-color: #C0E1FF;  /* Light blue background for the Login section */
+            background-color: #B2E6A6;  /* Light blue background for the Login section */
             color: #000000;  /* Text color to ensure readability */
         }
         </style>
@@ -353,7 +353,7 @@ def main():
         """
         <style>
         .stApp {
-            background-color: #E0F7FA;  /* Light blue background for the Login section */
+            background-color: #FFF9C4;  /* Light blue background for the Login section */
             color: #000000;  /* Text color to ensure readability */
         }
         </style>
@@ -369,6 +369,17 @@ def main():
 
     # Logout Section
     elif selected == "Logout":
+        st.markdown(
+        """
+        <style>
+        .stApp {
+            background-color: #FFCCB;  /* Light blue background for the Login section */
+            color: #000000;  /* Text color to ensure readability */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
         st.session_state['logged_in'] = False
         st.session_state['go_to_diagnosis'] = False
         st.success("Logged out successfully.")

@@ -235,8 +235,15 @@ def main():
                 st.write("")
                 st.write("")
 
-                img4 = Image.open("licensed-image.jpg")
-                st.image(img4, width=400)
+                img4 = Image.open("children autism 2023.png")
+                st.image(img4, width=400
+
+                st.write("")
+                st.write("")
+                st.write("")
+                         
+                img5 = Image.open("licensed-image.jpg")
+                st.image(img5, width=400)
 
     # Signup Section
     elif selected == "Signup":

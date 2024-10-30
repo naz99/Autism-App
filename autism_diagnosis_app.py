@@ -174,7 +174,7 @@ def main():
               """
         <style>
         .stApp {
-            background-color: #f0f8ff;  /* You can choose your own color */
+            background-color: 	#C3B1E1;  /* You can choose your own color */
             color: #000000;  /* Text color to ensure readability */
         }
         </style>

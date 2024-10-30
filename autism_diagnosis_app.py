@@ -189,14 +189,14 @@ def main():
 
                 st.title("Symptoms of ASD:")
                 st.write("1. Avoids or does not keep eye contact")
-                st.write("Does not respond to name by 9 months of age")
-                st.write("Does not show facial expressions like happy, sad, angry, and surprised by 9 months of age")
-                st.write("Lines up toys or other objects and gets upset when order is changed")
-                st.write("Repeats words or phrases over and over (called echolalia)")
-                st.write("Plays with toys the same way every time")
-                st.write("Delayed language skills")
-                st.write("Delayed movement skills")
-                st.write("Delayed cognitive or learning skill, etc.")
+                st.write("2.Does not respond to name by 9 months of age")
+                st.write("3.Does not show facial expressions like happy, sad, angry, and surprised by 9 months of age")
+                st.write("4.Lines up toys or other objects and gets upset when order is changed")
+                st.write("5.Repeats words or phrases over and over (called echolalia)")
+                st.write("6.Plays with toys the same way every time")
+                st.write("7.Delayed language skills")
+                st.write("8.Delayed movement skills")
+                st.write("9.Delayed cognitive or learning skill, etc.")
                 
             with col2:
                 img1 = Image.open("asd_child.jpg")

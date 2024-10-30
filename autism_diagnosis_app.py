@@ -198,7 +198,7 @@ elif selected == "Signup":
     
     if st.button("Signup"):
         # Placeholder for your user creation logic
-        st.success("User created successfully!"))
+        st.success("User created successfully!")
 
 
     # Login Section

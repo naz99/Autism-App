@@ -231,10 +231,8 @@ def main():
                 img3 = Image.open("autism.png")
                 st.image(img3, width=500)
 
-                st.write("")
-                st.write("")
-                st.write("")
-
+                img4 = Image.open("childrenautism2023.png")
+                st.image(img4, width=500)
 
                 st.write("")
                 st.write("")

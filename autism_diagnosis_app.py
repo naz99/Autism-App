@@ -219,7 +219,7 @@ def main():
                 st.image(img1, width=300)
 
                 img2 = Image.open("autism.png")
-                st.image(img1, width=300)
+                st.image(img2, width=300)
 
     # Signup Section
     elif selected == "Signup":

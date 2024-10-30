@@ -144,172 +144,161 @@ def main():
         pdf.output(pdf_file_path)
         return pdf_file_path
 
-    # Sidebar navigation
-    st.sidebar.title("Navigation")
-    menu = ["Home", "Signup", "Login", "Contact Us"]
-    if 'logged_in' in st.session_state and st.session_state['logged_in']:
-        menu.append("Autism Diagnosis")
-        menu.append("Logout")
+   # Streamlit main function
+def main():
+    # Define the navigation options in the sidebar
+    selected = st.sidebar.selectbox("Select a page", ["Home", "Signup", "Login", "Autism Diagnosis", "Contact Us", "Logout"])
 
-    selected = st.sidebar.selectbox("Select Page", menu)
+    # Home Section
+    if selected == "Home":
+        st.markdown(
+            """
+            <style>
+            .stApp {
+                background-color: #C3B1E1;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
 
-    conn = init_db_connection()
-    if conn is None:
-        st.stop()
+        st.write("---")
+        with st.container():
+            col1, col2 = st.columns([3, 2])
 
-    create_usertable(conn)
+            with col1:
+                st.title("What is Autism Spectrum Disorder?")
+                st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
 
-  # Home Section
-if selected == "Home":
-    st.markdown(
-        """
-        <style>
-        .stApp {
-            background-color: #C3B1E1;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+                st.title("What Causes Autism Spectrum Disorder?")
+                st.write("The Autism Spectrum Disorder Foundation lists the following as possible causes of ASD:")
 
-    st.write("---")
-    with st.container():
-        col1, col2 = st.columns([3, 2])
+                st.markdown(
+                    "**<mark>Genetics</mark>**: Research suggests that ASD can be caused by a combination of genetic and environmental factors. Some genes have been identified as being associated with an increased risk for ASD, but no single gene has been proven to cause ASD.",
+                    unsafe_allow_html=True
+                )
 
-        with col1:
-            st.title("What is Autism Spectrum Disorder?")
-            st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
+                st.write(
+                    "**<mark>Environmental factors</mark>**: Studies are currently underway to explore whether certain exposure to toxins during pregnancy or after birth can increase the risk for developing ASD.",
+                    unsafe_allow_html=True
+                )
 
-            st.title("What Causes Autism Spectrum Disorder?")
-            st.write("The Autism Spectrum Disorder Foundation lists the following as possible causes of ASD:")
+                st.write(
+                    "**<mark>Brain differences</mark>**: Differences in certain areas of the brain have been observed in people with ASD, compared to those without ASD. It is not yet known what causes these differences.",
+                    unsafe_allow_html=True
+                )
 
-            st.markdown(
-                "**<mark>Genetics</mark>**: Research suggests that ASD can be caused by a combination of genetic and environmental factors. Some genes have been identified as being associated with an increased risk for ASD, but no single gene has been proven to cause ASD.",
-                unsafe_allow_html=True
-            )
+                st.title("Symptoms of ASD:")
+                st.write("1. Avoids or does not keep eye contact")
+                st.write("2. Does not respond to name by 9 months of age")
+                st.write("3. Does not show facial expressions like happy, sad, angry, and surprised by 9 months of age")
+                st.write("4. Lines up toys or other objects and gets upset when order is changed")
+                st.write("5. Repeats words or phrases over and over (called echolalia)")
+                st.write("6. Plays with toys the same way every time")
+                st.write("7. Delayed language skills")
+                st.write("8. Delayed movement skills")
+                st.write("9. Delayed cognitive or learning skill, etc.")
 
-            st.write(
-                "**<mark>Environmental factors</mark>**: Studies are currently underway to explore whether certain exposure to toxins during pregnancy or after birth can increase the risk for developing ASD.",
-                unsafe_allow_html=True
-            )
+                st.title("Prevalence of Autism in Malaysia")
+                st.write(
+                    "The exact prevalence of Autism Spectrum Disorder (ASD) in Malaysia is not well-established due to a lack of nationwide studies and consistent diagnostic criteria. However, some studies have estimated that the prevalence of ASD in Malaysia is between 1 and 2 per 1000 children. According to a Ministry of Health (MOH) study in 2005, which used a modified checklist for Autism in Toddlers (M-CHAT) screener for ASD, the prevalence in Malaysia is between one and two per 1000 children aged 18 months to three years. The study also found that male children are four times more likely to get ASD than female children."
+                )
+                st.markdown(
+                    "The number of children with <b style='font-size: 20px;'>autism</b> registered with the Department of Sosial Welfare (JKM) has been steadily rising, from <b style='font-size: 20px;'>6991 children in 2013</b> to <b style='font-size: 20px;'>53,323 in 2023</b>. The figures for each year were provided by <b style='font-size: 20px;'>Minister of Women, Family and Community Development, Nancy Shukri</b> in her written reply to parliament last <b style='font-size: 20px;'>July 3, 2024</b>.",
+                    unsafe_allow_html=True
+                )
 
-            st.write(
-                "**<mark>Brain differences</mark>**: Differences in certain areas of the brain have been observed in people with ASD, compared to those without ASD. It is not yet known what causes these differences.",
-                unsafe_allow_html=True
-            )
+                st.title("World Autism Awareness Day")
+                st.write("World Autism Awareness Day is observed on April 2nd each year. Established by the United Nations in 2007, this day aims to raise awareness about autism spectrum disorder (ASD) and promote acceptance and inclusion of individuals with autism worldwide. The day encourages governments, organizations, and communities to take action to improve the lives of people with autism and their families.")
 
-            st.title("Symptoms of ASD:")
-            st.write("1. Avoids or does not keep eye contact")
-            st.write("2. Does not respond to name by 9 months of age")
-            st.write("3. Does not show facial expressions like happy, sad, angry, and surprised by 9 months of age")
-            st.write("4. Lines up toys or other objects and gets upset when order is changed")
-            st.write("5. Repeats words or phrases over and over (called echolalia)")
-            st.write("6. Plays with toys the same way every time")
-            st.write("7. Delayed language skills")
-            st.write("8. Delayed movement skills")
-            st.write("9. Delayed cognitive or learning skill, etc.")
+            with col2:
+                img1 = Image.open("asd_child.jpg")
+                st.image(img1, width=300)
 
-            st.title("Prevalence Autism in Malaysia")
-            st.write(
-                "The exact prevalence of Autism Spectrum Disorder (ASD) in Malaysia is not well-established due to a lack of nationwide studies and consistent diagnostic criteria. However, some studies have estimated that the prevalence of ASD in Malaysia is between 1 and 2 per 1000 children. According to a Ministry of Health (MOH) study in 2005, which used a modified checklist for Autism in Toddlers (M-CHAT) screener for ASD, the prevalence in Malaysia is between one and two per 1000 children aged 18 months to three years. The study also found that male children are four times more likely to get ASD than female children."
-            )
-            st.markdown(
-                "The number of children with <b style='font-size: 20px;'>autism</b> registered with the Department of Sosial Welfare (JKM) has been steadily rising, from <b style='font-size: 20px;'>6991 children in  2013</b> to <b style='font-size: 20px;'>53,323 in 2023</b>. The figures for each year were provided by <b style='font-size: 20px;'>Minister of Women, Family and Community Development, Nancy Shukri</b> in her written reply to parliament last <b style='font-size: 20px;'>July 3, 2024</b>.",
-                unsafe_allow_html=True
-            )
+                img2 = Image.open("causes-of-autism.png")
+                st.image(img2, width=400)
 
-            st.title("World Autism Awareness Day")
-            st.write("World Autism Awareness Day is observed on April 2nd each year. Established by the United Nations in 2007, this day aims to raise awareness about autism spectrum disorder (ASD) and promote acceptance and inclusion of individuals with autism worldwide. The day encourages governments, organizations, and communities to take action to improve the lives of people with autism and their families.")
+                st.write("")
+                st.write("")
+                st.write("")
 
-        with col2:
-            img1 = Image.open("asd_child.jpg")
-            st.image(img1, width=300)
+                img3 = Image.open("autism.png")
+                st.image(img3, width=500)
 
-            img2 = Image.open("causes-of-autism.png")
-            st.image(img2, width=400)
+                img4 = Image.open("childrenautism2023.png")
+                st.image(img4, width=500)
 
-            st.write("")
-            st.write("")
-            st.write("")
+                st.write("")
+                st.write("")
+                st.write("")
 
-            img3 = Image.open("autism.png")
-            st.image(img3, width=500)
+                img5 = Image.open("licensed-image.jpg")
+                st.image(img5, width=400)
 
-            img4 = Image.open("childrenautism2023.png")
-            st.image(img4, width=500)
+    # Signup Section
+    elif selected == "Signup":
+        st.title("Create New Account")
+        new_user = st.text_input("Username")
+        new_password = st.text_input("Password", type='password')
+        if st.button("Signup"):
+            add_userdata(conn, new_user, make_hashes(new_password))
 
-            st.write("")
-            st.write("")
-            st.write("")
+    # Login Section
+    elif selected == "Login":
+        st.title("Login Section")
+        username = st.text_input("User Name")
+        password = st.text_input("Password", type='password')
+        if st.button("Login"):
+            hashed_pswd = make_hashes(password)
+            result = login_user(conn, username, hashed_pswd)
+            if result:
+                st.success(f"Logged In as {username}")
+                st.session_state['logged_in'] = True
+                st.session_state['username'] = username
+            else:
+                st.warning("Incorrect Username/Password")
 
-            img5 = Image.open("licensed-image.jpg")
-            st.image(img5, width=400)
+    # Autism Diagnosis Section
+    elif selected == "Autism Diagnosis" and st.session_state.get('logged_in'):
+        st.title('Autism Diagnosis')
+        classifier, scaler = load_model_and_scaler()
 
-# Signup Section
-elif selected == "Signup":
-    st.title("Create New Account")
-    new_user = st.text_input("Username")
-    new_password = st.text_input("Password", type='password')
-    if st.button("Signup"):
-        add_userdata(conn, new_user, make_hashes(new_password))
+        social_responsiveness = st.slider("Social Responsiveness", min_value=0, max_value=10)
+        age = st.slider("Age", min_value=0, max_value=18)
+        speech_delay = st.selectbox("Speech Delay", options=["Yes", "No"])
 
-# Login Section
-elif selected == "Login":
-    st.title("Login Section")
-    username = st.text_input("User Name")
-    password = st.text_input("Password", type='password')
-    if st.button("Login"):
-        hashed_pswd = make_hashes(password)
-        result = login_user(conn, username, hashed_pswd)
-        if result:
-            st.success(f"Logged In as {username}")
-            st.session_state['logged_in'] = True
-            st.session_state['username'] = username
-        else:
-            st.warning("Incorrect Username/Password")
+        input_data = [[
+            social_responsiveness,
+            age,
+            1 if speech_delay == "Yes" else 0
+        ]]
 
-# Autism Diagnosis Section
-elif selected == "Autism Diagnosis" and st.session_state.get('logged_in'):
-    st.title('Autism Diagnosis')
-    classifier, scaler = load_model_and_scaler()
+        input_data_scaled = scaler.transform(input_data)
+        diagnosis = classifier.predict(input_data_scaled)
 
-    social_responsiveness = st.slider("Social Responsiveness", min_value=0, max_value=10)
-    age = st.slider("Age", min_value=0, max_value=18)
-    speech_delay = st.selectbox("Speech Delay", options=["Yes", "No"])
-    
-    input_data = [[
-        social_responsiveness,
-        age,
-        1 if speech_delay == "Yes" else 0
-    ]]
+        result = "Positive" if diagnosis[0] == 1 else "Negative"
+        st.success(f"Diagnosis Result: {result}")
 
-    input_data_scaled = scaler.transform(input_data)
-    diagnosis = classifier.predict(input_data_scaled)
+        pdf_path = generate_pdf_result(st.session_state['username'], result, input_data)
+        with open(pdf_path, "rb") as f:
+            pdf_data = f.read()
+        st.download_button("Download Diagnosis Report", pdf_data, file_name=pdf_path)
 
-    result = "Positive" if diagnosis[0] == 1 else "Negative"
-    st.success(f"Diagnosis Result: {result}")
+    # Contact Us Section
+    elif selected == "Contact Us":
+        st.title("Contact Us")
+        name = st.text_input("Your Name")
+        email = st.text_input("Your Email")
+        message = st.text_area("Your Message")
+        if st.button("Send"):
+            send_email(name, email, message)
 
-    pdf_path = generate_pdf_result(st.session_state['username'], result, input_data)
-    with open(pdf_path, "rb") as f:
-        pdf_data = f.read()
-    st.download_button("Download Diagnosis Report", pdf_data, file_name=pdf_path)
+    # Logout Section
+    elif selected == "Logout":
+        st.session_state['logged_in'] = False
+        st.success("Logged out successfully.")
 
-# Contact Us Section
-elif selected == "Contact Us":
-    st.title("Contact Us")
-    name = st.text_input("Your Name")
-    email = st.text_input("Your Email")
-    message = st.text_area("Your Message")
-    if st.button("Send"):
-        send_email(name, email, message)
-
-# Logout Section
-elif selected == "Logout":
-    st.session_state['logged_in'] = False
-    st.success("Logged out successfully.")
-
-conn.close()
+    conn.close()
 
 if __name__ == "__main__":
     main()
-

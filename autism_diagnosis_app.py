@@ -253,10 +253,8 @@ elif selected == "Signup":
     st.markdown(
         """
         <style>
-        .signup-bg {
-            background-color: #f0f8ff; /* Replace with your desired color */
-            padding: 20px; /* Optional: Adds some padding */
-            border-radius: 5px; /* Optional: Rounds the corners */
+        .stApp {
+            background-color: #C3B1E1;  /* Change this to your desired color */
         }
         </style>
         """,

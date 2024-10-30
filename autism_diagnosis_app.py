@@ -218,7 +218,8 @@ def main():
                 img1 = Image.open("asd_child.jpg")
                 st.image(img1, width=300)
                 
-                 st.markdown("<br><br>", unsafe_allow_html=True)  # Add two line breaks for vertical space
+                st.write("")  # Add two line breaks for vertical space
+                st.write("")
                 
                 img2 = Image.open("autism.png")
                 st.image(img2, width=300)

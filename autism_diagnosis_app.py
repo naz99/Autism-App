@@ -218,7 +218,7 @@ def main():
                 img1 = Image.open("asd_child.jpg")
                 st.image(img1, width=300)
 
-                img2 = Image.open("asd_child.jpg")
+                img2 = Image.open("autism.png")
                 st.image(img1, width=300)
 
     # Signup Section

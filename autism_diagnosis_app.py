@@ -255,7 +255,7 @@ if selected == "Home":
                 st.image(img5, width=400)
   
     # Signup Section
-if selected == "Signup":
+elif selected == "Signup":
     st.title(":iphone: Create New Account")
     new_user = st.text_input("Username")
     new_password = st.text_input("Password", type='password')

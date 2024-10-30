@@ -348,6 +348,18 @@ def main():
 
     # Contact Us Section
     elif selected == "Contact Us":
+         # Change background color for the Login section only
+        st.markdown(
+        """
+        <style>
+        .stApp {
+            background-color: #E0F7FA;  /* Light blue background for the Login section */
+            color: #000000;  /* Text color to ensure readability */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
         st.title("Contact Us")
         name = st.text_input("Your Name")
         email = st.text_input("Your Email")

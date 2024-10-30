@@ -215,27 +215,27 @@ def main():
                 
             with col2:
                 img1 = Image.open("asd_child.jpg")
-                st.image(img1, width=300)
-                
-                img2 = Image.open("causes-of-autism.png")
-                st.image(img2, width=400)
+            st.image(img1, width=300)
 
-                st.write("")
-                st.write("")
-                st.write("")
-            
-                img3 = Image.open("autism.png")
-                st.image(img3, width=500)
+            img2 = Image.open("causes-of-autism.png")
+            st.image(img2, width=400)
 
-                img4 = Image.open("childrenautism2023.png")
-                st.image(img4, width=500)
+            st.write("")
+            st.write("")
+            st.write("")
 
-                st.write("")
-                st.write("")
-                st.write("")
-                         
-                img5 = Image.open("licensed-image.jpg")
-                st.image(img5, width=400
+            img3 = Image.open("autism.png")
+            st.image(img3, width=500)
+
+            img4 = Image.open("childrenautism2023.png")
+            st.image(img4, width=500)
+
+            st.write("")
+            st.write("")
+            st.write("")
+
+            img5 = Image.open("licensed-image.jpg")
+            st.image(img5, width=400)
 
     # Signup Section
     elif selected == "Signup":

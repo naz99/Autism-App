@@ -175,7 +175,7 @@ def main():
          """
         <style>
         .stApp {
-            background-color: #FFDDDD;  /* Change this to your desired color */
+            background-color: 	#C3B1E1;  /* Change this to your desired color */
         }
         </style>
         """,

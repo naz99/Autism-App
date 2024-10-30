@@ -246,17 +246,14 @@ def main():
                          
                 img5 = Image.open("licensed-image.jpg")
                 st.image(img5, width=400)
-
+   
     # Signup Section
 elif selected == "Signup":
-   
-    st.markdown('<div class="signup-bg">', unsafe_allow_html=True) 
+    st.title(":iphone: :blue[Create New Account]")
     new_user = st.text_input("Username")
     new_password = st.text_input("Password", type='password')
-    
     if st.button("Signup"):
         add_userdata(conn, new_user, make_hashes(new_password))
-
 
 
     # Login Section

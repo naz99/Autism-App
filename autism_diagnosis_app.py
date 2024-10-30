@@ -235,7 +235,7 @@ def main():
                 st.write("")
                 st.write("")
 
-                img4 = Image.open("children autism 2023.png")
+                img4 = Image.open("childrenautism2023.png")
                 st.image(img4, width=400
 
                 st.write("")

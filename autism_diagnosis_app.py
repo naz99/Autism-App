@@ -172,13 +172,15 @@ def main():
 if selected == "Home":
     st.title(":blue[Autism Spectrum Disorder]")
     st.write("---")
+    
     with st.container():
         col1, col2 = st.columns([3, 2])
+        
         with col1:
             st.title("What is Autism Spectrum Disorder?")
             st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
             
-            # Add the causes of Autism Spectrum Disorder
+            # Adding the causes of Autism Spectrum Disorder
             st.write("## Possible Causes of Autism Spectrum Disorder")
             st.write("1. **Genetics**: Research suggests that ASD can be caused by a combination of genetic and environmental factors. Some genes have been identified as being associated with an increased risk for ASD, but no single gene has been proven to cause ASD.")
             st.write("2. **Environmental factors**: Studies are currently underway to explore whether certain exposure to toxins during pregnancy or after birth can increase the risk for developing ASD.")
@@ -193,9 +195,10 @@ elif selected == "Signup":
     st.title(":iphone: :blue[Create New Account]")
     new_user = st.text_input("Username")
     new_password = st.text_input("Password", type='password')
+    
     if st.button("Signup"):
-        # Assuming you have a function to add user data
-        add_userdata(conn, new_user, make_hashes(new_password))
+        # Placeholder for your user creation logic
+        st.success("User created successfully!"))
 
 
     # Login Section

@@ -216,7 +216,7 @@ def main():
                 
             with col2:
                 img1 = Image.open("asd_child.jpg")
-                st.image(img1, width=300)
+                st.image(img1, width=600)
                 
                 st.write("")  
                 st.write("")

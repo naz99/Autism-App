@@ -250,15 +250,13 @@ def main():
     # Signup Section
 elif selected == "Signup":
    
-    st.markdown('<div class="signup-bg">', unsafe_allow_html=True)  # Start the signup background div
-    st.title(":iphone: :blue[Create New Account]")
+    st.markdown('<div class="signup-bg">', unsafe_allow_html=True) 
     new_user = st.text_input("Username")
     new_password = st.text_input("Password", type='password')
     
     if st.button("Signup"):
         add_userdata(conn, new_user, make_hashes(new_password))
-    
-    st.markdown('</div>', unsafe_allow_html=True)  # End the signup background div
+
 
 
     # Login Section

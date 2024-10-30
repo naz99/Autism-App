@@ -193,7 +193,7 @@ def main():
                 st.title("What Causes Autism Spectrum Disorder?")
                 st.write("The Autism Spectrum Disorder Foundation lists the following as possible causes of ASD:")
 
-                st.markdown("<mark>Genetics</mark> : Research suggests that ASD can be caused by a combination of genetic and environmental factors. Some genes have been identified as being associated with an increased risk for ASD, but no single gene has been proven to cause ASD."), unsafe_allow_html=True)
+                st.markdown("**<mark>Genetics</mark>**: Research suggests that ASD can be caused by a combination of genetic and environmental factors. Some genes have been identified as being associated with an increased risk for ASD, but no single gene has been proven to cause ASD.", unsafe_allow_html=True)
 
                 st.write("Environmental factors : Studies are currently underway to explore whether certain exposure to toxins during pregnancy or after birth can increase the risk for developing ASD.")
 

@@ -248,22 +248,31 @@ def main():
                 st.image(img5, width=400)
 
     # Signup Section
-    elif selected == "Signup":
-         st.markdown(
-         """
+elif selected == "Signup":
+    # Change background color
+    st.markdown(
+        """
         <style>
-        .stApp {
-            background-color: 	#C3B1E1;  /* Change this to your desired color */
+        .signup-bg {
+            background-color: #f0f8ff; /* Replace with your desired color */
+            padding: 20px; /* Optional: Adds some padding */
+            border-radius: 5px; /* Optional: Rounds the corners */
         }
         </style>
         """,
         unsafe_allow_html=True
     )
-        st.title(":iphone: :blue[Create New Account]")
-        new_user = st.text_input("Username")
-        new_password = st.text_input("Password", type='password')
-        if st.button("Signup"):
-            add_userdata(conn, new_user, make_hashes(new_password))
+
+    st.markdown('<div class="signup-bg">', unsafe_allow_html=True)  # Start the signup background div
+    st.title(":iphone: :blue[Create New Account]")
+    new_user = st.text_input("Username")
+    new_password = st.text_input("Password", type='password')
+    
+    if st.button("Signup"):
+        add_userdata(conn, new_user, make_hashes(new_password))
+    
+    st.markdown('</div>', unsafe_allow_html=True)  # End the signup background div
+
 
     # Login Section
     elif selected == "Login":

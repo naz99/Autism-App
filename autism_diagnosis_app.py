@@ -159,7 +159,7 @@ def main():
 
     create_usertable(conn)
 
-    # Home Section
+  # Home Section
 if selected == "Home":
     st.markdown(
         """
@@ -245,71 +245,71 @@ if selected == "Home":
             img5 = Image.open("licensed-image.jpg")
             st.image(img5, width=400)
 
-        
-    # Signup Section
-    elif selected == "Signup":
-        st.title("Create New Account")
-        new_user = st.text_input("Username")
-        new_password = st.text_input("Password", type='password')
-        if st.button("Signup"):
-            add_userdata(conn, new_user, make_hashes(new_password))
+# Signup Section
+elif selected == "Signup":
+    st.title("Create New Account")
+    new_user = st.text_input("Username")
+    new_password = st.text_input("Password", type='password')
+    if st.button("Signup"):
+        add_userdata(conn, new_user, make_hashes(new_password))
+
+# Login Section
+elif selected == "Login":
+    st.title("Login Section")
+    username = st.text_input("User Name")
+    password = st.text_input("Password", type='password')
+    if st.button("Login"):
+        hashed_pswd = make_hashes(password)
+        result = login_user(conn, username, hashed_pswd)
+        if result:
+            st.success(f"Logged In as {username}")
+            st.session_state['logged_in'] = True
+            st.session_state['username'] = username
+        else:
+            st.warning("Incorrect Username/Password")
+
+# Autism Diagnosis Section
+elif selected == "Autism Diagnosis" and st.session_state.get('logged_in'):
+    st.title('Autism Diagnosis')
+    classifier, scaler = load_model_and_scaler()
+
+    social_responsiveness = st.slider("Social Responsiveness", min_value=0, max_value=10)
+    age = st.slider("Age", min_value=0, max_value=18)
+    speech_delay = st.selectbox("Speech Delay", options=["Yes", "No"])
     
-    # Login Section
-    elif selected == "Login":
-        st.title("Login Section")
-        username = st.text_input("User Name")
-        password = st.text_input("Password", type='password')
-        if st.button("Login"):
-            hashed_pswd = make_hashes(password)
-            result = login_user(conn, username, hashed_pswd)
-            if result:
-                st.success(f"Logged In as {username}")
-                st.session_state['logged_in'] = True
-                st.session_state['username'] = username
-            else:
-                st.warning("Incorrect Username/Password")
+    input_data = [[
+        social_responsiveness,
+        age,
+        1 if speech_delay == "Yes" else 0
+    ]]
 
-    # Autism Diagnosis Section
-    elif selected == "Autism Diagnosis" and st.session_state.get('logged_in'):
-        st.title('Autism Diagnosis')
-        classifier, scaler = load_model_and_scaler()
+    input_data_scaled = scaler.transform(input_data)
+    diagnosis = classifier.predict(input_data_scaled)
 
-        social_responsiveness = st.slider("Social Responsiveness", min_value=0, max_value=10)
-        age = st.slider("Age", min_value=0, max_value=18)
-        speech_delay = st.selectbox("Speech Delay", options=["Yes", "No"])
-        
-        input_data = [[
-            social_responsiveness,
-            age,
-            1 if speech_delay == "Yes" else 0
-        ]]
+    result = "Positive" if diagnosis[0] == 1 else "Negative"
+    st.success(f"Diagnosis Result: {result}")
 
-        input_data_scaled = scaler.transform(input_data)
-        diagnosis = classifier.predict(input_data_scaled)
+    pdf_path = generate_pdf_result(st.session_state['username'], result, input_data)
+    with open(pdf_path, "rb") as f:
+        pdf_data = f.read()
+    st.download_button("Download Diagnosis Report", pdf_data, file_name=pdf_path)
 
-        result = "Positive" if diagnosis[0] == 1 else "Negative"
-        st.success(f"Diagnosis Result: {result}")
+# Contact Us Section
+elif selected == "Contact Us":
+    st.title("Contact Us")
+    name = st.text_input("Your Name")
+    email = st.text_input("Your Email")
+    message = st.text_area("Your Message")
+    if st.button("Send"):
+        send_email(name, email, message)
 
-        pdf_path = generate_pdf_result(st.session_state['username'], result, input_data)
-        with open(pdf_path, "rb") as f:
-            pdf_data = f.read()
-        st.download_button("Download Diagnosis Report", pdf_data, file_name=pdf_path)
+# Logout Section
+elif selected == "Logout":
+    st.session_state['logged_in'] = False
+    st.success("Logged out successfully.")
 
-    # Contact Us Section
-    elif selected == "Contact Us":
-        st.title("Contact Us")
-        name = st.text_input("Your Name")
-        email = st.text_input("Your Email")
-        message = st.text_area("Your Message")
-        if st.button("Send"):
-            send_email(name, email, message)
-
-    # Logout Section
-    elif selected == "Logout":
-        st.session_state['logged_in'] = False
-        st.success("Logged out successfully.")
-
-    conn.close()
+conn.close()
 
 if __name__ == "__main__":
     main()
+

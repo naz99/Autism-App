@@ -169,7 +169,7 @@ def main():
     create_usertable(conn)  # Ensure the table is created at the start
 
    # Home Section
-    if selected == "Home":
+if selected == "Home":
     st.title(":blue[Autism Spectrum Disorder]")
     st.write("---")
     with st.container():
@@ -187,6 +187,7 @@ def main():
         with col2:
             img1 = Image.open("asd_child.jpg")
             st.image(img1, width=300)
+
 
 
     # Signup Section

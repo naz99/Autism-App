@@ -195,9 +195,9 @@ def main():
 
                 st.markdown("**<mark>Genetics</mark>**: Research suggests that ASD can be caused by a combination of genetic and environmental factors. Some genes have been identified as being associated with an increased risk for ASD, but no single gene has been proven to cause ASD.", unsafe_allow_html=True)
 
-                st.write("**<mark>Environmental factors</mark> : Studies are currently underway to explore whether certain exposure to toxins during pregnancy or after birth can increase the risk for developing ASD.", unsafe_allow_html=True)
+                st.write("**<mark>Environmental factors</mark>**: Studies are currently underway to explore whether certain exposure to toxins during pregnancy or after birth can increase the risk for developing ASD.", unsafe_allow_html=True)
 
-                st.write("**<mark>Brain differences</mark> : Differences in certain areas of the brain have been observed in people with ASD, compared to those without ASD. It is not yet known what causes these differences." ,unsafe_allow_html=True)
+                st.write("**<mark>Brain differences</mark>**: Differences in certain areas of the brain have been observed in people with ASD, compared to those without ASD. It is not yet known what causes these differences." ,unsafe_allow_html=True)
 
                 st.title("Symptoms of ASD:")
                 st.write("1.Avoids or does not keep eye contact")

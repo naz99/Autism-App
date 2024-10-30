@@ -259,6 +259,18 @@ def main():
 
     # Login Section
     elif selected == "Login":
+         # Change background color for the Login section only
+        st.markdown(
+        """
+        <style>
+        .stApp {
+            background-color: #C0E1FF;  /* Light blue background for the Login section */
+            color: #000000;  /* Text color to ensure readability */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
         st.title(":calling: :blue[Login Section]")
         username = st.text_input("User Name")
         password = st.text_input("Password", type='password')

@@ -188,7 +188,7 @@ def main():
                 st.write("Brain differences : Differences in certain areas of the brain have been observed in people with ASD, compared to those without ASD. It is not yet known what causes these differences.")
 
                 st.title("Symptoms of ASD:")
-                st.write("1. Avoids or does not keep eye contact")
+                st.write("1.Avoids or does not keep eye contact")
                 st.write("2.Does not respond to name by 9 months of age")
                 st.write("3.Does not show facial expressions like happy, sad, angry, and surprised by 9 months of age")
                 st.write("4.Lines up toys or other objects and gets upset when order is changed")
@@ -197,6 +197,10 @@ def main():
                 st.write("7.Delayed language skills")
                 st.write("8.Delayed movement skills")
                 st.write("9.Delayed cognitive or learning skill, etc.")
+
+                st.title("Prevalence Autism in Malaysia")
+
+                st.write("The exact prevalence of Autism Spectrum Disorder (ASD) in Malaysia is not well-established due to a lack of nationwide studies and consistent diagnostic criteria. However, some studies have estimated that the prevalence of ASD in Malaysia is between 1 and 2 per 1000 children. According to to an Ministry of Health (MOH) study in 2005, which use modified checklist for Autism in Toddlers (M-CHAT) screener for ASD, the prevelance in Malaysia is between one and two per 1000 children aged 18 months to three years. The study also found that male children are four times more likely to get ASD than female children.")
                 
             with col2:
                 img1 = Image.open("asd_child.jpg")

@@ -292,6 +292,17 @@ def main():
 
     # Autism Diagnosis Section
     elif selected == "Autism Diagnosis" and (st.session_state['logged_in'] or st.session_state.get('go_to_diagnosis', False)):
+        st.markdown(
+        """
+        <style>
+        .stApp {
+            background-color: #A4C8E1;  /* Soft Blue */
+            color: #000000;  /* Text color to ensure readability */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
         st.title('Autism Diagnosis')
 
         # Load model and scaler

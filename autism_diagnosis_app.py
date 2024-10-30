@@ -213,7 +213,11 @@ def main():
                 st.title("Prevalence Autism in Malaysia")
 
                 st.write("The exact prevalence of Autism Spectrum Disorder (ASD) in Malaysia is not well-established due to a lack of nationwide studies and consistent diagnostic criteria. However, some studies have estimated that the prevalence of ASD in Malaysia is between 1 and 2 per 1000 children. According to to an Ministry of Health (MOH) study in 2005, which use modified checklist for Autism in Toddlers (M-CHAT) screener for ASD, the prevelance in Malaysia is between one and two per 1000 children aged 18 months to three years. The study also found that male children are four times more likely to get ASD than female children.")
-                st.markdown("The number of children with <mark>autism</mark> registered with the Department of Sosial Welfare (JKM) has been steadily rising, from <mark>6991 children in 2013</mark> to <mark>53,323 in 2023</mark>. The figures for each year were provided by <mark>Minister of Women, Family and Community Development, Nancy Shukri</mark> in her written reply to parliament last <mark>July 3, 2024</mark>.", unsafe_allow_html=True)
+                st.markdown(
+    "The number of children with <b style='font-size: 20px;'>autism</b> registered with the Department of Sosial Welfare (JKM) has been steadily rising, from <b style='font-size: 20px;'>6991 children in 2013</b> to <b style='font-size: 20px;'>53,323 in 2023</b>. The figures for each year were provided by <b style='font-size: 20px;'>Minister of Women, Family and Community Development, Nancy Shukri</b> in her written reply to parliament last <b style='font-size: 20px;'>July 3, 2024</b>.",
+    unsafe_allow_html=True
+)
+
 
 
                 st.title("World Autism Awareness Day")

@@ -178,7 +178,7 @@ def main():
                 st.title("What is Autism Spectrum Disorder?")
                 st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
 
-                st.header("Muhammad nazrul iskandar bin mohd nazarudin")
+                st.title("Muhammad nazrul iskandar bin mohd nazarudin")
             with col2:
                 img1 = Image.open("asd_child.jpg")
                 st.image(img1, width=300)

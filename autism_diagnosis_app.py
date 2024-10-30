@@ -186,6 +186,9 @@ def main():
                 st.write("Environmental factors : Studies are currently underway to explore whether certain exposure to toxins during pregnancy or after birth can increase the risk for developing ASD.")
 
                 st.write("Brain differences : Differences in certain areas of the brain have been observed in people with ASD, compared to those without ASD. It is not yet known what causes these differences.")
+
+                st.title("Symptoms of ASD:")
+                st.write("1. Avoids or does not keep eye contact")
                 
             with col2:
                 img1 = Image.open("asd_child.jpg")

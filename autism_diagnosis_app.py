@@ -256,13 +256,14 @@ if selected == "Home":
 
    
    
-                # Signup Section
+    # Signup Section
     elif selected == "Signup":
-        st.title(":iphone: Create New Account")
-        new_user = st.text_input("Username")
-        new_password = st.text_input("Password", type='password')
-        if st.button("Signup"):
-        a    dd_userdata(conn, new_user, make_hashes(new_password))
+    st.title(":iphone: Create New Account")
+    new_user = st.text_input("Username")
+    new_password = st.text_input("Password", type='password')
+    
+    if st.button("Signup"):
+        add_userdata(conn, make_hashes(new_password)) 
 
 
 

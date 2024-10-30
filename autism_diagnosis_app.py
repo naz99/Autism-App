@@ -254,6 +254,7 @@ if selected == "Home":
             img5 = Image.open("licensed-image.jpg")
             st.image(img5, width=400)
 
+
    
    
     # Signup Section

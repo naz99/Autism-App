@@ -249,18 +249,7 @@ def main():
 
     # Signup Section
 elif selected == "Signup":
-    # Change background color
-    st.markdown(
-        """
-        <style>
-        .stApp {
-            background-color: #C3B1E1;  /* Change this to your desired color */
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
+   
     st.markdown('<div class="signup-bg">', unsafe_allow_html=True)  # Start the signup background div
     st.title(":iphone: :blue[Create New Account]")
     new_user = st.text_input("Username")

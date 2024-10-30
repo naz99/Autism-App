@@ -214,7 +214,7 @@ def main():
                 st.write("The exact prevalence of Autism Spectrum Disorder (ASD) in Malaysia is not well-established due to a lack of nationwide studies and consistent diagnostic criteria. However, some studies have estimated that the prevalence of ASD in Malaysia is between 1 and 2 per 1000 children. According to to an Ministry of Health (MOH) study in 2005, which use modified checklist for Autism in Toddlers (M-CHAT) screener for ASD, the prevelance in Malaysia is between one and two per 1000 children aged 18 months to three years. The study also found that male children are four times more likely to get ASD than female children.")
                 
             with col2:
-                img1 = Image.open("asd_child.jpg")
+            img1 = Image.open("asd_child.jpg")
             st.image(img1, width=300)
 
             img2 = Image.open("causes-of-autism.png")
@@ -235,7 +235,7 @@ def main():
             st.write("")
 
             img5 = Image.open("licensed-image.jpg")
-            st.image(img5, width=400)
+            st.image(img5, width=400))
 
     # Signup Section
     elif selected == "Signup":

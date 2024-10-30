@@ -168,30 +168,26 @@ def main():
 
     create_usertable(conn)  # Ensure the table is created at the start
 
-  # Home Section
-if selected == "Home":
-    st.title(":blue[Autism Spectrum Disorder]")
-    st.write("---")
-    with st.container():
-        col1, col2 = st.columns([3, 2])
-        with col1:
-            st.title("What is Autism Spectrum Disorder?")
-            st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
-        with col2:
-            img1 = Image.open("asd_child.jpg")
-            st.image(img1, width=300)
+    # Home Section
+    if selected == "Home":
+        st.title(":blue[Autism Spectrum Disorder]")
+        st.write("---")
+        with st.container():
+            col1, col2 = st.columns([3, 2])
+            with col1:
+                st.title("What is Autism Spectrum Disorder?")
+                st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
+            with col2:
+                img1 = Image.open("asd_child.jpg")
+                st.image(img1, width=300)
 
-
-# Signup Section
-elif selected == "Signup":
-    st.title(":iphone: :blue[Create New Account]")
-    new_user = st.text_input("Username")
-    new_password = st.text_input("Password", type='password')
-    
-    if st.button("Signup"):
-        # Placeholder for your user creation logic
-        st.success("User created successfully!")
-
+    # Signup Section
+    elif selected == "Signup":
+        st.title(":iphone: :blue[Create New Account]")
+        new_user = st.text_input("Username")
+        new_password = st.text_input("Password", type='password')
+        if st.button("Signup"):
+            add_userdata(conn, new_user, make_hashes(new_password))
 
     # Login Section
     elif selected == "Login":

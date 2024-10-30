@@ -168,18 +168,26 @@ def main():
 
     create_usertable(conn)  # Ensure the table is created at the start
 
-    # Home Section
+   # Home Section
     if selected == "Home":
-        st.title(":blue[Autism Spectrum Disorder]")
-        st.write("---")
-        with st.container():
-            col1, col2 = st.columns([3, 2])
-            with col1:
-                st.title("What is Autism Spectrum Disorder?")
-                st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
-            with col2:
-                img1 = Image.open("asd_child.jpg")
-                st.image(img1, width=300)
+    st.title(":blue[Autism Spectrum Disorder]")
+    st.write("---")
+    with st.container():
+        col1, col2 = st.columns([3, 2])
+        with col1:
+            st.title("What is Autism Spectrum Disorder?")
+            st.write("Autism spectrum disorder (ASD) is a developmental disability caused by differences in the brain. People with ASD often have problems with social communication and interaction, and restricted or repetitive behaviors or interests.")
+
+            # Add the causes of Autism Spectrum Disorder
+            st.write("## Possible Causes of Autism Spectrum Disorder")
+            st.write("1. **Genetics**: Research suggests that ASD can be caused by a combination of genetic and environmental factors. Some genes have been identified as being associated with an increased risk for ASD, but no single gene has been proven to cause ASD.")
+            st.write("2. **Environmental factors**: Studies are currently underway to explore whether certain exposure to toxins during pregnancy or after birth can increase the risk for developing ASD.")
+            st.write("3. **Brain differences**: Differences in certain areas of the brain have been observed in people with ASD, compared to those without ASD. It is not yet known what causes these differences.")
+            
+        with col2:
+            img1 = Image.open("asd_child.jpg")
+            st.image(img1, width=300)
+
 
     # Signup Section
     elif selected == "Signup":

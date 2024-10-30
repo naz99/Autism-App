@@ -215,7 +215,7 @@ def main():
                 st.title("World Autism Awareness Day")
                 st.write("World Autism Awareness Day is observed on April 2nd each year. Established by the United Nations in 2007, this day aims to raise awareness about autism spectrum disorder (ASD) and promote acceptance and inclusion of individuals with autism worldwide. The day encourages governments, organizations, and communities to take action to improve the lives of people with autism and their families.")
                
-                with col2:
+            with col2:
                 img1 = Image.open("asd_child.jpg")
                 st.image(img1, width=300)
                 
